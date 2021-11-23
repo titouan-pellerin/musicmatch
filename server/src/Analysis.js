@@ -51,8 +51,6 @@ function analyze(users) {
       usersWithScores,
     });
   });
-  //   const returnArray = Array.from(analyzedUsers);
-  console.log(analyzedUsers.length);
   return analyzedUsers;
 }
 
@@ -64,15 +62,18 @@ function compareArtists(
 ) {
   let score = 0;
   let matchingArtists = [];
-  artists.forEach((artist) => {
+  artists.forEach((artist, index) => {
     addUserGenre(artist, userGenres);
-    artistsToCompare.forEach((artistToCompare) => {
-      addUserGenre(artistToCompare, userGenresToCompare);
-      if (JSON.stringify(artist) === JSON.stringify(artistToCompare)) {
-        score++;
-        matchingArtists.push(artist);
-      }
-    });
+    if (artistsToCompare[index])
+      addUserGenre(artistsToCompare[index], userGenresToCompare);
+    const artistsMatch = artistsToCompare.filter(
+      (artistToCompare) =>
+        JSON.stringify(artistToCompare) === JSON.stringify(artist)
+    );
+    if (artistsMatch.length === 1) {
+      score++;
+      matchingArtists.push(artist);
+    }
   });
   return { score, matchingArtists };
 }
@@ -81,12 +82,14 @@ function compareTracks(tracks, tracksToCompare) {
   let score = 0;
   let matchingTracks = [];
   tracks.forEach((track) => {
-    tracksToCompare.forEach((trackToCompare) => {
-      if (JSON.stringify(track) === JSON.stringify(trackToCompare)) {
-        score++;
-        matchingTracks.push(track);
-      }
-    });
+    const tracksMatch = tracksToCompare.filter(
+      (trackToCompare) =>
+        JSON.stringify(trackToCompare) === JSON.stringify(track)
+    );
+    if (tracksMatch.length === 1) {
+      score++;
+      matchingTracks.push(track);
+    }
   });
   return { score, matchingTracks };
 }
