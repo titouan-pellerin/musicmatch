@@ -115,7 +115,7 @@ export class UsersSocket {
 
       usersAnalysis.forEach((userAnalysis) => {
         if (
-          userAnalysis.user.id !== bestMatch.user.id ||
+          userAnalysis.user.id !== bestMatch.user.id &&
           userAnalysis.user.id !== worstMatch.user.id
         ) {
           const meshToHide = UserMesh.userMeshes.get(userAnalysis.user.id);
