@@ -114,6 +114,21 @@ export class UsersSocket {
       usersAnalysis = usersAnalysis.splice(usersAnalysis.indexOf(currentUserAnalysis), 1);
 
       usersAnalysis.forEach((userAnalysis) => {
+        if (
+          userAnalysis.user.id !== bestMatch.user.id ||
+          userAnalysis.user.id !== worstMatch.user.id
+        ) {
+          const meshToHide = UserMesh.userMeshes.get(userAnalysis.user.id);
+          if (meshToHide)
+            gsap.to(meshToHide.scale, {
+              duration: 0.75,
+              x: 0.1,
+              y: 0.1,
+              z: 0.1,
+              ease: 'power3.out',
+            });
+        }
+
         userAnalysis.usersWithScores.forEach((userWithScores) => {
           console.log(
             userAnalysis.user.spotify.name +
