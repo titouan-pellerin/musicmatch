@@ -1,10 +1,8 @@
-import { UserMesh } from './ts/Three/UserMesh';
 import { SpotifyData } from './ts/Spotify/SpotifyData';
 import { SpotifyLogin } from './ts/Spotify/SpotifyLogin';
 import './style.scss';
 import { UsersSocket } from './ts/Socket/UsersSocket';
 import { MainScene } from './ts/Three/MainScene';
-import { Raf } from './ts/utils/Raf';
 
 /** Spotify */
 let accessToken: string | null = null;

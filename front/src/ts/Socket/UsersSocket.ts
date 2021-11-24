@@ -2,7 +2,7 @@ import { UserMesh } from './../Three/UserMesh';
 import { SimpleUser, UserAnalysis } from './../../../typings/index';
 import { io, Socket } from 'socket.io-client';
 import { MainScene } from '../Three/MainScene';
-import { Group, Vector3 } from 'three';
+import { Group, Mesh, Vector3 } from 'three';
 import gsap from 'gsap';
 
 export class UsersSocket {
@@ -10,6 +10,7 @@ export class UsersSocket {
   usersDiv: HTMLDivElement | null = null;
   users: SimpleUser[] = [];
   scene: MainScene;
+  currentUser: string | null = null;
 
   constructor(serverUrl: string, scene: MainScene) {
     this.scene = scene;
@@ -18,6 +19,7 @@ export class UsersSocket {
     // client-side
     this.socket.on('connect', () => {
       console.log(this.socket.id);
+      this.currentUser = this.socket.id;
     });
 
     this.socket.on('disconnect', () => {
@@ -46,25 +48,21 @@ export class UsersSocket {
 
   getUsers(users: SimpleUser[]) {
     users.forEach(async (user) => {
-      this.scene.add(this.createUserMesh(user));
-    });
-    gsap.to(this.scene.camera.position, {
-      duration: 0.75,
-      z: this.scene.camera.position.z + UserMesh.userMeshes.size + 3,
-      x: this.scene.camera.position.x + (UserMesh.userMeshes.size === 0 ? 0 : 2.5),
-      ease: 'power3.out',
+      console.log(user.spotify.name);
+
+      this.createUserMesh(user);
     });
   }
 
   async addUser(user: SimpleUser) {
-    this.users.push(user);
+    console.log(user.spotify.name);
 
-    this.scene.add(this.createUserMesh(user));
+    this.users.push(user);
+    this.createUserMesh(user);
   }
 
   removeUser(user: SimpleUser) {
     this.users.splice(this.users.indexOf(user), 1);
-    document.getElementById(user.id)?.remove();
     UserMesh.remove(user.id, this.scene);
   }
 
@@ -73,37 +71,72 @@ export class UsersSocket {
   }
 
   async analysisDone(usersAnalysis: UserAnalysis[]) {
-    console.log(usersAnalysis);
-    usersAnalysis.forEach((userAnalysis) => {
-      userAnalysis.usersWithScores.forEach((userWithScores) => {
-        console.log(
-          userAnalysis.user.spotify.name +
-            ' matches at ' +
-            (userWithScores.scores.artistsScore.score +
-              userWithScores.scores.tracksScore.score +
-              userWithScores.scores.genresScore.score) +
-            ' with ' +
-            userWithScores.user.spotify.name,
-        );
+    if (this.currentUser) {
+      const currentUserId = this.currentUser;
+      console.log(usersAnalysis);
+      const currentUserAnalysis = usersAnalysis.filter(
+        (userAnalysis) => userAnalysis.user.id === currentUserId,
+      )[0];
+
+      const currentUserMesh = UserMesh.userMeshes.get(currentUserId) as Group;
+      gsap.to(currentUserMesh.position, {
+        duration: 0.75,
+        x: 0,
+        y: 0,
+        z: 0,
+        ease: 'power3.out',
       });
-    });
+
+      const bestMatch = currentUserAnalysis.usersWithScores[0];
+      const bestMatchMesh = UserMesh.userMeshes.get(bestMatch.user.id);
+      const worstMatch =
+        currentUserAnalysis.usersWithScores[
+          currentUserAnalysis.usersWithScores.length - 1
+        ];
+      const worstMatchMesh = UserMesh.userMeshes.get(worstMatch.user.id);
+      if (bestMatchMesh && worstMatchMesh) {
+        gsap.to(bestMatchMesh.position, {
+          duration: 0.75,
+          x: -3,
+          y: 0,
+          z: 0,
+          ease: 'power3.out',
+        });
+        gsap.to(worstMatchMesh.position, {
+          duration: 0.75,
+          x: 3,
+          y: 0,
+          z: 0,
+          ease: 'power3.out',
+        });
+      }
+
+      usersAnalysis = usersAnalysis.splice(usersAnalysis.indexOf(currentUserAnalysis), 1);
+
+      usersAnalysis.forEach((userAnalysis) => {
+        userAnalysis.usersWithScores.forEach((userWithScores) => {
+          console.log(
+            userAnalysis.user.spotify.name +
+              ' matches at ' +
+              (userWithScores.scores.artistsScore.score +
+                userWithScores.scores.tracksScore.score +
+                userWithScores.scores.genresScore.score) +
+              ' with ' +
+              userWithScores.user.spotify.name,
+          );
+        });
+      });
+    }
   }
 
   createUserMesh(user: SimpleUser) {
-    let currentPos: Vector3;
-    if (!UserMesh.lastMeshPos) currentPos = new Vector3(0, 0, 0);
-    else currentPos = new Vector3(UserMesh.lastMeshPos.x + 3, 0, 0);
+    let currentMesh: Group;
+    if (UserMesh.userMeshes.size === 0) {
+      currentMesh = new UserMesh(user.id);
+    } else currentMesh = UserMesh.clone(user.id);
 
-    if (UserMesh.userMeshes.size === 0)
-      UserMesh.userMeshes.set(
-        user.id,
-        new UserMesh(user.id, user.spotify.name, this.scene.camera),
-      );
-    else UserMesh.userMeshes.set(user.id, [...UserMesh.userMeshes.values()][0].clone());
-
-    const currentMesh = UserMesh.userMeshes.get(user.id) as Group;
-    currentMesh.position.set(currentPos.x, currentPos.y, currentPos.z);
-    UserMesh.lastMeshPos = currentMesh.position;
+    // currentMesh.position.set(currentPos.x, currentPos.y, currentPos.z);
+    // UserMesh.lastMeshPos = currentMesh.position;
     currentMesh.scale.set(0, 0, 0);
 
     gsap.to(currentMesh.scale, {
@@ -115,6 +148,7 @@ export class UsersSocket {
       // stagger: 0.3,
     });
 
-    return currentMesh;
+    this.scene.add(currentMesh);
+    console.log(this.scene.children);
   }
 }

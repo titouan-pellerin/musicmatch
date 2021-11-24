@@ -5,40 +5,43 @@ import {
   Mesh,
   MeshBasicMaterial,
   Scene,
+  Shader,
   ShaderMaterial,
   SphereGeometry,
+  TorusGeometry,
   Vector3,
 } from 'three';
 import fragmentShader from '../../glsl/UserMesh/fragment.glsl';
 import vertexShader from '../../glsl/UserMesh/vertex.glsl';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import raf from '../utils/Raf';
 
 export class UserMesh extends Group {
   static userMeshes: Map<string, Group> = new Map();
-  static lastMeshPos: Vector3;
+  static userMaterials: Map<string, ShaderMaterial> = new Map();
   static fontLoader = new FontLoader();
-  static userMaterial = new ShaderMaterial({
-    fragmentShader,
-    vertexShader,
-    uniforms: {
-      uTime: { value: 0 },
-    },
-  });
   static textMaterial = new MeshBasicMaterial();
-  textGeometry: TextGeometry | null = null;
-  textMesh: Mesh | null = null;
-  userGeometry: SphereGeometry;
+  userMaterial: ShaderMaterial;
+  userGeometry: TorusGeometry;
   userMesh: Mesh;
 
-  constructor() {
+  constructor(id: string) {
     super();
-
-    this.userGeometry = new SphereGeometry(1, 8, 8);
-    this.userMesh = new Mesh(this.userGeometry, UserMesh.userMaterial);
+    this.userMaterial = new ShaderMaterial({
+      fragmentShader,
+      vertexShader,
+      uniforms: {
+        uTime: { value: 0 },
+        uSeed: { value: 0 },
+      },
+    });
+    this.userGeometry = new TorusGeometry(1, 0.1, 64, 64);
+    this.userMesh = new Mesh(this.userGeometry, this.userMaterial);
+    this.userMesh.rotation.set(Math.PI * 0.3, 0, 0);
     this.add(this.userMesh);
+
+    UserMesh.userMaterials.set(id, this.userMaterial);
+    UserMesh.userMeshes.set(id, this);
 
     // UserMesh.fontLoader.load('/fonts/HelveticaNeueLTPro.json', (font) => {
     //   this.textGeometry = new TextGeometry(name, {
@@ -68,7 +71,9 @@ export class UserMesh extends Group {
   // }
 
   static update() {
-    UserMesh.userMaterial.uniforms.uTime.value = raf.elapsedTime;
+    UserMesh.userMaterials.forEach((userMaterial) => {
+      userMaterial.uniforms.uTime.value = raf.elapsedTime;
+    });
   }
 
   static remove(id: string, scene: Scene) {
@@ -77,7 +82,9 @@ export class UserMesh extends Group {
     // const index = keys.indexOf(id);
     // const meshToRemove = values[index];
     const meshToRemove = UserMesh.userMeshes.get(id) as Group;
+
     // const meshToRemove = UserMesh.userMeshes.get(id) as Group;
+
     gsap.to(meshToRemove.scale, {
       duration: 0.75,
       x: 0,
@@ -87,7 +94,26 @@ export class UserMesh extends Group {
       onComplete: () => {
         scene.remove(meshToRemove);
         UserMesh.userMeshes.delete(id);
+        UserMesh.userMaterials.delete(id);
       },
     });
+  }
+
+  static clone(id: string) {
+    const clonedMesh = [...UserMesh.userMeshes.values()][0].clone();
+    ((clonedMesh.children[0] as Mesh).material as ShaderMaterial) = (
+      (clonedMesh.children[0] as Mesh).material as ShaderMaterial
+    ).clone();
+    const clonedMaterial = (clonedMesh.children[0] as Mesh).material as ShaderMaterial;
+    const seed = Math.random();
+    clonedMaterial.uniforms.uSeed.value = seed;
+    const seedPos = seed > 0.5 ? seed : -seed;
+    clonedMesh.position.set(Math.cos(seedPos) * 2, Math.sin(seedPos) * 2, 0);
+    clonedMesh.rotation.set(Math.PI * 2 * seed, Math.PI * 2 * seed, Math.PI * 2 * seed);
+    // clonedMesh.scale.set(1 + seed, 1 + seed, 1 + seed);
+    UserMesh.userMeshes.set(id, clonedMesh);
+    UserMesh.userMaterials.set(id, clonedMaterial);
+
+    return clonedMesh;
   }
 }

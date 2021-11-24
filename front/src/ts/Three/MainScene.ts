@@ -1,7 +1,6 @@
 import { UserMesh } from './UserMesh';
 import * as THREE from 'three';
 import raf from '../utils/Raf';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export class MainScene extends THREE.Scene {
   canvas: HTMLCanvasElement;
@@ -40,7 +39,7 @@ export class MainScene extends THREE.Scene {
     this.camera.zoom = 100;
     this.camera.updateProjectionMatrix();
 
-    this.camera.position.set(0, 0, 2);
+    this.camera.position.set(0, 0, 3);
 
     // this.controls = new OrbitControls(this.camera, this.canvas);
     // this.controls.enableDamping = true;
