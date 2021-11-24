@@ -1,7 +1,10 @@
+import { UserMesh } from './ts/Three/UserMesh';
 import { SpotifyData } from './ts/Spotify/SpotifyData';
 import { SpotifyLogin } from './ts/Spotify/SpotifyLogin';
 import './style.scss';
 import { UsersSocket } from './ts/Socket/UsersSocket';
+import { MainScene } from './ts/Three/MainScene';
+import { Raf } from './ts/utils/Raf';
 
 /** Spotify */
 let accessToken: string | null = null;
@@ -15,9 +18,17 @@ let usersSocket: UsersSocket | null = null;
 /** Experience */
 let startBtn: HTMLButtonElement | null = null;
 
+/** THREE */
+let canvas: HTMLCanvasElement | null = null;
+let mainScene: MainScene | null = null;
+
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
+  canvas = document.querySelector('.webgl');
+  if (canvas) {
+    mainScene = new MainScene(canvas);
+  }
   spotifyBtn = document.querySelector('.spotify-btn');
   if (spotifyBtn) spotifyBtn.addEventListener('click', loginSpotify);
 }
@@ -25,15 +36,20 @@ function init() {
 async function loginSpotify() {
   try {
     accessToken = await spotifyLogin.login();
-    usersSocket = new UsersSocket('http://localhost:8081');
-    const spotifyData = new SpotifyData(accessToken);
+    document.querySelector('.start-screen')?.classList.add('hidden');
 
-    const userData = await spotifyData.getData();
-    usersSocket.setSpotify(userData);
+    if (mainScene) {
+      usersSocket = new UsersSocket('http://localhost:8081', mainScene);
+      const spotifyData = new SpotifyData(accessToken);
 
-    if (userData.id === '21mt764g6tshzefezye2zx4oq') {
-      startBtn = document.querySelector('.start-btn');
-      startBtn?.addEventListener('click', startAnalysis);
+      const userData = await spotifyData.getData();
+      usersSocket.setSpotify(userData);
+
+      if (userData.id === '21mt764g6tshzefezye2zx4oq') {
+        startBtn = document.querySelector('.start-btn');
+        document.querySelector('.start-btn-container')?.classList.remove('hidden');
+        startBtn?.addEventListener('click', startAnalysis);
+      }
     }
   } catch (err) {
     console.error(err);

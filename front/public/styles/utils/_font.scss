@@ -1,17 +1,17 @@
 @font-face {
-  font-family: 'Roxborough';
+  font-family: 'Helvetica Neue LT Pro';
+  src: url('/fonts/HelveticaNeueLTPro-ThEx.woff2') format('woff2'),
+    url('/fonts/HelveticaNeueLTPro-ThEx.woff') format('woff');
+  font-weight: 100;
   font-style: normal;
-  font-weight: 400;
-  src: url('/fonts/RoxboroughCF-Regular.eot');
-  src: local(''), url('/fonts/RoxboroughCF-Regular.woff2') format('woff2'),
-    url('/fonts/RoxboroughCF-Regular.woff') format('woff');
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'Roxborough';
+  font-family: 'Gyahegi';
+  src: url('/fonts/Gyahegi.woff2') format('woff2'),
+    url('/fonts/Gyahegi.woff') format('woff');
+  font-weight: normal;
   font-style: normal;
-  font-weight: 300;
-  src: url('/fonts/RoxboroughCF-Light.eot');
-  src: local(''), url('/fonts/RoxboroughCF-Light.woff2') format('woff2'),
-    url('/fonts/RoxboroughCF-Light.woff') format('woff');
+  font-display: swap;
 }

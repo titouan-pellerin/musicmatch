@@ -4,14 +4,18 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite starter</title>
+    <title>Music Mate</title>
   </head>
   <body>
-    <button class="spotify-btn">Connexion à Spotify</button>
-    <div class="users">
-      <p>Users</p>
+    <div class="start-btn-container hidden">
+      <button class="start-btn">Find you mate</button>
     </div>
-    <button class="start-btn">Lancer l'analyse</button>
+    <div class="start-screen">
+      <h1>Music Mate</h1>
+      <button class="spotify-btn">Connect to your Spotify account</button>
+    </div>
+    <canvas class="webgl"></canvas>
+    <div class="results">Test</div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

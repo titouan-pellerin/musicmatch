@@ -7,6 +7,8 @@
     "serve": "vite preview"
   },
   "devDependencies": {
+    "@types/gsap": "^3.0.0",
+    "@types/three": "^0.134.0",
     "@typescript-eslint/eslint-plugin": "^5.2.0",
     "@typescript-eslint/parser": "^5.2.0",
     "eslint": "^8.1.0",
@@ -14,10 +16,13 @@
     "sass": "^1.43.4",
     "tslib": "^2.3.1",
     "typescript": "^4.4.4",
-    "vite": "^2.6.13"
+    "vite": "^2.6.13",
+    "vite-plugin-glsl": "^0.0.5"
   },
   "dependencies": {
+    "gsap": "^3.8.0",
     "socket.io-client": "^4.4.0",
-    "spotify-web-api-js": "^1.5.2"
+    "spotify-web-api-js": "^1.5.2",
+    "three": "^0.134.0"
   }
 }

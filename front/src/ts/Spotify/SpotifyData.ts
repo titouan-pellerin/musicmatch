@@ -15,15 +15,16 @@ export class SpotifyData {
       this.spotifyWebApi.getMyTopArtists({
         limit: 50,
         offset: 0,
-        time_range: 'long_term',
+        time_range: 'medium_term',
       }),
       this.spotifyWebApi.getMyTopTracks({
         limit: 50,
         offset: 0,
-        time_range: 'long_term',
+        time_range: 'medium_term',
       }),
       await this.spotifyWebApi.getMe(),
     ]);
+
     return {
       name: data[2].display_name as string,
       id: data[2].id,
