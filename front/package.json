@@ -7,6 +7,7 @@
     "serve": "vite preview"
   },
   "devDependencies": {
+    "@types/d3-force": "^3.0.3",
     "@types/gsap": "^3.0.0",
     "@types/three": "^0.134.0",
     "@typescript-eslint/eslint-plugin": "^5.2.0",
@@ -20,6 +21,7 @@
     "vite-plugin-glsl": "^0.0.5"
   },
   "dependencies": {
+    "d3-force": "^3.0.0",
     "gsap": "^3.8.0",
     "socket.io-client": "^4.4.0",
     "spotify-web-api-js": "^1.5.2",

@@ -16,9 +16,9 @@ void main() {
     float noiseY = cnoise(vec2(modelPosition.x, uTime));
     float noiseZ = cnoise(vec2(normal.y * modelPosition.y * uSeed, uTime));
 
-    modelPosition.x += sin(noiseX * uSeed * 2. + uTime) * .1;
-    modelPosition.y += sin(noiseY * 3. + uTime * .1) * .1;
-    modelPosition.z += sin(noiseZ * uSeed * 2. + uTime) * .1;
+    modelPosition.x += sin(noiseX * uSeed * 2. + uTime + uSeed) * .1;
+    modelPosition.y += sin(noiseY * 3. + uTime + uSeed * .1) * .1;
+    modelPosition.z += sin(noiseZ * uSeed * 2. + uTime + uSeed) * .1;
     vec4 viewPosition = viewMatrix * modelPosition;
     vec4 projectedPosition = projectionMatrix * viewPosition;
 

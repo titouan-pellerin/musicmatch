@@ -1,8 +1,9 @@
+import { ForceGraph } from './../Three/ForceGraph';
 import { UserMesh } from './../Three/UserMesh';
 import { SimpleUser, UserAnalysis } from './../../../typings/index';
 import { io, Socket } from 'socket.io-client';
 import { MainScene } from '../Three/MainScene';
-import { Group, Mesh, Vector3 } from 'three';
+import { Group, Mesh, ShaderMaterial, Vector3 } from 'three';
 import gsap from 'gsap';
 
 export class UsersSocket {
@@ -11,7 +12,7 @@ export class UsersSocket {
   users: SimpleUser[] = [];
   scene: MainScene;
   currentUser: string | null = null;
-
+  usersAnalysis: UserAnalysis[] | null = null;
   constructor(serverUrl: string, scene: MainScene) {
     this.scene = scene;
     this.usersDiv = document.querySelector('.users');
@@ -48,22 +49,21 @@ export class UsersSocket {
 
   getUsers(users: SimpleUser[]) {
     users.forEach(async (user) => {
-      console.log(user.spotify.name);
-
-      this.createUserMesh(user);
+      if (!UserMesh.userMeshes.has(user.id)) this.createUserMesh(user);
     });
   }
 
   async addUser(user: SimpleUser) {
     console.log(user.spotify.name);
-
-    this.users.push(user);
-    this.createUserMesh(user);
+    if (!UserMesh.userMeshes.has(user.id)) {
+      this.users.push(user);
+      this.createUserMesh(user);
+    }
   }
 
   removeUser(user: SimpleUser) {
     this.users.splice(this.users.indexOf(user), 1);
-    UserMesh.remove(user.id, this.scene);
+    UserMesh.remove(user.id);
   }
 
   startAnalysis() {
@@ -71,14 +71,44 @@ export class UsersSocket {
   }
 
   async analysisDone(usersAnalysis: UserAnalysis[]) {
-    if (this.currentUser) {
-      const currentUserId = this.currentUser;
-      console.log(usersAnalysis);
-      const currentUserAnalysis = usersAnalysis.filter(
+    this.usersAnalysis = usersAnalysis;
+    console.log(new ForceGraph(usersAnalysis).showRelations());
+  }
+
+  createUserMesh(user: SimpleUser) {
+    let currentMesh: UserMesh;
+    if (UserMesh.userMeshes.size === 0) {
+      console.log('first');
+      currentMesh = new UserMesh(user.id, user.spotify.name);
+    } else currentMesh = UserMesh.cloneUser(user.id, user.spotify.name);
+
+    UserMesh.userMeshes.set(user.id, currentMesh);
+
+    currentMesh.scale.set(0, 0, 0);
+    currentMesh.nameEl.classList.remove('hidden');
+    gsap.to(currentMesh.scale, {
+      duration: 0.75,
+      x: 1,
+      y: 1,
+      z: 1,
+      ease: 'power3.out',
+      // stagger: 0.3,
+    });
+    console.log(UserMesh.userMeshes.size);
+    console.log(currentMesh.position);
+
+    UserMesh.userMeshesGroup.add(currentMesh);
+  }
+
+  showUserMatch(user: SimpleUser) {
+    if (this.usersAnalysis) {
+      const currentUserId = user.id;
+
+      const currentUserAnalysis = this.usersAnalysis.filter(
         (userAnalysis) => userAnalysis.user.id === currentUserId,
       )[0];
 
-      const currentUserMesh = UserMesh.userMeshes.get(currentUserId) as Group;
+      const currentUserMesh = UserMesh.userMeshes.get(currentUserId) as Mesh;
       gsap.to(currentUserMesh.position, {
         duration: 0.75,
         x: 0,
@@ -102,6 +132,13 @@ export class UsersSocket {
           z: 0,
           ease: 'power3.out',
         });
+        gsap.to(bestMatchMesh.rotation, {
+          duration: 0.75,
+          x: Math.PI,
+          y: 0,
+          z: 0,
+          ease: 'power3.out',
+        });
         gsap.to(worstMatchMesh.position, {
           duration: 0.75,
           x: 3,
@@ -109,61 +146,43 @@ export class UsersSocket {
           z: 0,
           ease: 'power3.out',
         });
+        gsap.to(worstMatchMesh.rotation, {
+          duration: 0.75,
+          x: Math.PI,
+          y: 0,
+          z: 0,
+          ease: 'power3.out',
+        });
       }
 
-      usersAnalysis = usersAnalysis.splice(usersAnalysis.indexOf(currentUserAnalysis), 1);
-
-      usersAnalysis.forEach((userAnalysis) => {
+      this.usersAnalysis.forEach((userAnalysis) => {
         if (
           userAnalysis.user.id !== bestMatch.user.id &&
-          userAnalysis.user.id !== worstMatch.user.id
+          userAnalysis.user.id !== worstMatch.user.id &&
+          userAnalysis.user.id !== currentUserId
         ) {
-          const meshToHide = UserMesh.userMeshes.get(userAnalysis.user.id);
-          if (meshToHide)
-            gsap.to(meshToHide.scale, {
-              duration: 0.75,
-              x: 0.1,
-              y: 0.1,
-              z: 0.1,
-              ease: 'power3.out',
-            });
+          document.getElementById(userAnalysis.user.id)?.classList.add('hidden');
+          gsap.to((UserMesh.userMeshes.get(userAnalysis.user.id) as UserMesh).scale, {
+            duration: 0.75,
+            x: 0,
+            y: 0,
+            z: 0,
+            stagger: 0.3,
+            ease: 'power3.out',
+          });
+          userAnalysis.usersWithScores.forEach((userWithScores) => {
+            console.log(
+              userAnalysis.user.spotify.name +
+                ' matches at ' +
+                (userWithScores.scores.artistsScore.score +
+                  userWithScores.scores.tracksScore.score +
+                  userWithScores.scores.genresScore.score) +
+                ' with ' +
+                userWithScores.user.spotify.name,
+            );
+          });
         }
-
-        userAnalysis.usersWithScores.forEach((userWithScores) => {
-          console.log(
-            userAnalysis.user.spotify.name +
-              ' matches at ' +
-              (userWithScores.scores.artistsScore.score +
-                userWithScores.scores.tracksScore.score +
-                userWithScores.scores.genresScore.score) +
-              ' with ' +
-              userWithScores.user.spotify.name,
-          );
-        });
       });
     }
-  }
-
-  createUserMesh(user: SimpleUser) {
-    let currentMesh: Group;
-    if (UserMesh.userMeshes.size === 0) {
-      currentMesh = new UserMesh(user.id);
-    } else currentMesh = UserMesh.clone(user.id);
-
-    // currentMesh.position.set(currentPos.x, currentPos.y, currentPos.z);
-    // UserMesh.lastMeshPos = currentMesh.position;
-    currentMesh.scale.set(0, 0, 0);
-
-    gsap.to(currentMesh.scale, {
-      duration: 0.75,
-      x: 1,
-      y: 1,
-      z: 1,
-      ease: 'power3.out',
-      // stagger: 0.3,
-    });
-
-    this.scene.add(currentMesh);
-    console.log(this.scene.children);
   }
 }

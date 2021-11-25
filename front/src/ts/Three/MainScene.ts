@@ -20,6 +20,9 @@ export class MainScene extends THREE.Scene {
 
     this.fog = new THREE.Fog(0xffffff, 2, 8);
     this.canvas = canvas;
+    UserMesh.scene = this;
+    UserMesh.canvas = canvas;
+    this.add(UserMesh.userMeshesGroup);
 
     // this.camera = new THREE.PerspectiveCamera(
     //   55,
