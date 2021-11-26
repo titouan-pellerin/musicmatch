@@ -1,4 +1,3 @@
-import { UserMesh } from './UserMesh';
 import { MainScene } from './MainScene';
 import gsap from 'gsap';
 import {
