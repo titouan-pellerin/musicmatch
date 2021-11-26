@@ -8,8 +8,8 @@ const PROD = import.meta.env.PROD;
 const BACK_URL = PROD
   ? import.meta.env.VITE_BACK_URL
     ? (import.meta.env.VITE_BACK_URL as string)
-    : 'http://localhost:8081'
-  : 'http://localhost:8081';
+    : 'http://10.137.98.224:8081'
+  : 'http://10.137.98.224:8081';
 
 /** Spotify */
 let accessToken: string | null = null;

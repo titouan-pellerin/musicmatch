@@ -106,6 +106,7 @@ body {
     margin-bottom: 50px;
     text-transform: uppercase;
     text-align: center;
+    margin-bottom: 20px;
   }
 }
 
@@ -113,8 +114,8 @@ body {
   border: none;
   background-color: #f4f4f4;
   border-radius: 10px;
-  padding: 15px 20px 10px 20px;
-  font-size: 1.6rem;
+  padding: 15px 15px 10px 15px;
+  font-size: 1.4rem;
   cursor: pointer;
   position: relative;
   text-transform: uppercase;
@@ -138,6 +139,13 @@ body {
   //   transform: translate(-100%, -65%);
   // }
 }
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.start-btn-container.hidden {
+  opacity: 0;
+}
 
 .start-btn-container {
   width: 100%;
@@ -153,11 +161,6 @@ body {
 
 .start-btn {
   width: 150px;
-}
-
-.hidden {
-  opacity: 0;
-  pointer-events: none;
 }
 
 .canvas-container {

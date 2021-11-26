@@ -1,14 +1,16 @@
+import { UserMesh } from './UserMesh';
 import { MainScene } from './MainScene';
 import gsap from 'gsap';
 import {
   Group,
+  MathUtils,
   Mesh,
   MeshMatcapMaterial,
   TextureLoader,
   TorusGeometry,
   Vector3,
 } from 'three';
-import { noise } from '../../glsl/utils/noise';
+import { noise } from '../../glsl/utils/noise2d';
 import raf from '../utils/Raf';
 
 export class UserMesh extends Mesh {
@@ -39,7 +41,7 @@ export class UserMesh extends Mesh {
     const userMaterial = new MeshMatcapMaterial({});
     const uniforms = {
       uTime: { value: raf.elapsedTime },
-      uSeed: { value: Math.random() },
+      uSeed: { value: MathUtils.randFloat(0.1, 1) },
     };
     userMaterial.matcap = UserMesh.matcapTexture;
     userMaterial.onBeforeCompile = (shader) => {
@@ -66,14 +68,14 @@ export class UserMesh extends Mesh {
         
         vNormal = normal;
         vec4 modelPosition = modelViewMatrix * vec4(position, 1.0);
-        float noiseX = cnoise(vec2(normal.z * modelPosition.z * uSeed, uTime * uSeed));
-        float noiseY = cnoise(vec2(modelPosition.x, uTime * uSeed));
+        float noiseX = cnoise(vec2(normal.x * modelPosition.z * uSeed, uTime * uSeed));
+        float noiseY = cnoise(vec2(normal.z * modelPosition.x, uTime + uSeed));
         float noiseZ = cnoise(vec2(normal.y * modelPosition.y * uSeed, uTime * uSeed));
         
-        modelPosition.x += sin(noiseX * uSeed + uTime * 2. + uSeed) * .1;
-        modelPosition.y += cos(noiseY * 3. + uTime * 2. + uSeed * .1) * .1;
-        modelPosition.z += sin(noiseZ * uSeed + uTime * 2. + uSeed) * .1;
-        gl_Position = projectionMatrix * modelPosition;
+        modelPosition.x -= sin(noiseX * uSeed + uTime * 4. + uSeed) * .1 * -uSeed;
+        modelPosition.y += sin(noiseY * 3. + uTime * 3. + uSeed * .10) * .1;
+        modelPosition.z += atan(noiseZ * uSeed + uTime * 2. + uSeed) * .1;
+        gl_Position = projectionMatrix * modelPosition * uSeed;
         `,
       );
     };
@@ -129,7 +131,6 @@ export class UserMesh extends Mesh {
   static update() {
     UserMesh.userMeshes.forEach((userMesh) => {
       userMesh.uniforms.uTime.value = raf.elapsedTime;
-
       const tempV = new Vector3();
 
       userMesh.updateWorldMatrix(true, false);
@@ -166,10 +167,49 @@ export class UserMesh extends Mesh {
 
   static cloneUser(id: string, name: string) {
     const clonedMesh = [...UserMesh.userMeshes.values()][0].clone();
-    // (clonedMesh.material as MeshMatcapMaterial) = (
-    //   clonedMesh.material as MeshMatcapMaterial
-    // ).clone();
-    // clonedMesh.uniforms.uTime.value = raf.elapsedTime;
+    const matcapMaterial = (clonedMesh.material as MeshMatcapMaterial).clone();
+    matcapMaterial.onBeforeCompile = (shader) => {
+      const uniforms = {
+        uTime: { value: raf.elapsedTime },
+        uSeed: { value: MathUtils.randFloat(0.1, 1) },
+      };
+      shader.uniforms.uTime = uniforms.uTime;
+      shader.uniforms.uSeed = uniforms.uSeed;
+
+      clonedMesh.uniforms = uniforms;
+
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        `
+        #include <common>
+        
+        uniform float uTime;
+        uniform float uSeed;
+        
+        ${noise}
+        `,
+      );
+
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <project_vertex>',
+        `
+        #include <project_vertex>
+        
+        vNormal = normal;
+        vec4 modelPosition = modelViewMatrix * vec4(position, 1.0);
+        float noiseX = cnoise(vec2(normal.x * modelPosition.z * uSeed, uTime * uSeed));
+        float noiseY = cnoise(vec2(normal.z * modelPosition.x, uTime + uSeed));
+        float noiseZ = cnoise(vec2(normal.y * modelPosition.y * uSeed, uTime * uSeed));
+        
+        modelPosition.x -= sin(noiseX * uSeed + uTime * 4. + uSeed) * .1 * -uSeed;
+        modelPosition.y += sin(noiseY * 3. + uTime * 3. + uSeed * .10) * .1;
+        modelPosition.z += atan(noiseZ * uSeed + uTime * 2. + uSeed) * .1;
+        gl_Position = projectionMatrix * modelPosition * uSeed;
+        `,
+      );
+    };
+
+    clonedMesh.material = matcapMaterial;
     clonedMesh.nameEl.innerText = name;
     clonedMesh.nameEl.id = id;
 
