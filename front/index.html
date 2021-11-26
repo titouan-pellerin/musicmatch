@@ -6,19 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Music Mate</title>
   </head>
-  <body>
+  <body class="no-overflow-y">
     <div class="start-btn-container hidden">
-      <button class="start-btn">Find your match</button>
+      <button class="start-btn btn">Start</button>
     </div>
     <div class="start-screen">
       <h1>Music Mate</h1>
-      <button class="spotify-btn">Connect to your Spotify account</button>
+      <button class="spotify-btn btn">Connect to Spotify</button>
+    </div>
+    <div class="back-btn-container hidden">
+      <button class="back-btn btn">Back</button>
     </div>
     <div class="canvas-container">
       <canvas class="webgl"></canvas>
       <div class="labels"></div>
     </div>
-    <div class="results">Test</div>
+    <div class="results">
+      <div class="score-container">
+        <h2>
+          <span class="current-user"></span>'s best match is
+          <span class="current-user-match"></span> at <span class="score"></span>
+        </h2>
+        <!-- <h2>They are matching at <span class="score"></span></h2> -->
+      </div>
+      <div class="artists-container">
+        <h2>Artists that they have in common in their top 50</h2>
+      </div>
+      <div class="tracks-container">
+        <h2>Tracks that they have in common in their top 50</h2>
+      </div>
+      <div class="genres-container">
+        <h2>Genres that they have in common in their top 10</h2>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

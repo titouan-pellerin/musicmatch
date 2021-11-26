@@ -1,15 +1,18 @@
 import { UserMesh } from './UserMesh';
 import * as THREE from 'three';
 import raf from '../utils/Raf';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { AmbientLight, Scene } from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export class MainScene extends THREE.Scene {
   canvas: HTMLCanvasElement;
   renderer: THREE.WebGLRenderer;
   camera: THREE.OrthographicCamera;
-  // controls: OrbitControls;
+  controls: OrbitControls;
   sizes: { width: number; height: number };
   cameraFrustumSize = 1000;
-
+  reduced = false;
   constructor(canvas: HTMLCanvasElement) {
     super();
 
@@ -18,18 +21,11 @@ export class MainScene extends THREE.Scene {
       height: window.innerHeight,
     };
 
-    this.fog = new THREE.Fog(0xffffff, 2, 8);
     this.canvas = canvas;
     UserMesh.scene = this;
     UserMesh.canvas = canvas;
     this.add(UserMesh.userMeshesGroup);
 
-    // this.camera = new THREE.PerspectiveCamera(
-    //   55,
-    //   this.sizes.width / this.sizes.height,
-    //   0.1,
-    //   100,
-    // );
     const aspect = this.sizes.width / this.sizes.height;
     this.camera = new THREE.OrthographicCamera(
       (this.cameraFrustumSize * aspect) / -2,
@@ -39,15 +35,37 @@ export class MainScene extends THREE.Scene {
       1,
       1000,
     );
-    this.camera.zoom = 100;
+    this.camera.zoom = 125;
     this.camera.updateProjectionMatrix();
 
     this.camera.position.set(0, 0, 3);
 
-    // this.controls = new OrbitControls(this.camera, this.canvas);
-    // this.controls.enableDamping = true;
-    // this.controls.dampingFactor = 0.05;
-    // this.controls.update();
+    this.controls = new OrbitControls(this.camera, this.canvas);
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.05;
+    this.controls.enableRotate = false;
+    this.controls.mouseButtons = {
+      LEFT: THREE.MOUSE.PAN,
+      MIDDLE: THREE.MOUSE.DOLLY,
+      RIGHT: THREE.MOUSE.PAN,
+    };
+    this.controls.update();
+
+    const ambientLight = new AmbientLight(100);
+    this.add(ambientLight);
+
+    // const glftLoader = new GLTFLoader();
+    // glftLoader.load('/models/cd.gltf', (gltf) => {
+    //   const scene = gltf.scene;
+    //   scene.children[0].material.opacity = 0.5;
+    //   scene.children[0].material.transparent = true;
+    //   scene.children[1].material.opacity = 0.5;
+    //   scene.children[1].material.transparent = true;
+    //   scene.children[2].material.opacity = 0.5;
+    //   scene.children[2].material.transparent = true;
+    //   this.add(scene);
+    //   console.log(scene);
+    // });
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -61,12 +79,6 @@ export class MainScene extends THREE.Scene {
 
     this.add(this.camera);
 
-    // const ambientLight = new THREE.AmbientLight(0.2);
-    // const pointLight = new THREE.PointLight(1.8);
-    // pointLight.position.set(1, 1, 0);
-
-    // this.add(ambientLight, pointLight);
-
     window.addEventListener('resize', this.resize.bind(this));
 
     raf.subscribe('three', this.update.bind(this));
@@ -75,6 +87,7 @@ export class MainScene extends THREE.Scene {
 
   resize() {
     this.sizes.width = window.innerWidth;
+
     this.sizes.height = window.innerHeight;
 
     const aspect = this.sizes.width / this.sizes.height;
@@ -86,12 +99,12 @@ export class MainScene extends THREE.Scene {
     this.camera.updateProjectionMatrix();
 
     this.renderer.setSize(this.sizes.width, this.sizes.height);
+
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   }
 
   update() {
-    // this.controls.update();
-
+    this.controls.update();
     this.renderer.render(this, this.camera);
   }
 }

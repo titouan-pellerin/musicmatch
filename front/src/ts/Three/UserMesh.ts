@@ -1,8 +1,14 @@
 import { MainScene } from './MainScene';
 import gsap from 'gsap';
-import { Box3, Group, Mesh, Scene, ShaderMaterial, TorusGeometry, Vector3 } from 'three';
-import fragmentShader from '../../glsl/UserMesh/fragment.glsl';
-import vertexShader from '../../glsl/UserMesh/vertex.glsl';
+import {
+  Group,
+  Mesh,
+  MeshMatcapMaterial,
+  TextureLoader,
+  TorusGeometry,
+  Vector3,
+} from 'three';
+import { noise } from '../../glsl/utils/noise';
 import raf from '../utils/Raf';
 
 export class UserMesh extends Mesh {
@@ -12,20 +18,68 @@ export class UserMesh extends Mesh {
   static scene: MainScene;
   static userMeshesGroup = new Group();
   static canvas: HTMLCanvasElement;
+  static textureloader = new TextureLoader();
+  static matcapTexture = UserMesh.textureloader.load('/textures/metal.jpg');
+  static userMeshesGroupPositions: Vector3[];
+  static userMeshesGroupPosition: Vector3;
+  static materialParameters: {
+    roughness: 0;
+    metalness: 1;
+    clearcoat: 0.1;
+    clearcoatRoughness: number;
+  };
   nameEl: HTMLHeadingElement;
+  uniforms: {
+    uTime: { value: number };
+    uSeed: { value: number };
+  };
   constructor(id: string, name: string) {
     console.log('constructor');
-    const userGeometry = new TorusGeometry(1, 0.1, 64, 64);
-    const userMaterial = new ShaderMaterial({
-      fragmentShader,
-      vertexShader,
-      uniforms: {
-        uTime: { value: 0 },
-        uSeed: { value: 0 },
-      },
-    });
-    super(userGeometry, userMaterial);
+    const userGeometry = new TorusGeometry(1, 0.09, 64, 64);
+    const userMaterial = new MeshMatcapMaterial({});
+    const uniforms = {
+      uTime: { value: raf.elapsedTime },
+      uSeed: { value: Math.random() },
+    };
+    userMaterial.matcap = UserMesh.matcapTexture;
+    userMaterial.onBeforeCompile = (shader) => {
+      shader.uniforms.uTime = uniforms.uTime;
+      shader.uniforms.uSeed = uniforms.uSeed;
+      console.log(shader.vertexShader);
 
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        `
+        #include <common>
+        
+        uniform float uTime;
+        uniform float uSeed;
+        
+        ${noise}
+        `,
+      );
+
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <project_vertex>',
+        `
+        #include <project_vertex>
+        
+        vNormal = normal;
+        vec4 modelPosition = modelViewMatrix * vec4(position, 1.0);
+        float noiseX = cnoise(vec2(normal.z * modelPosition.z * uSeed, uTime * uSeed));
+        float noiseY = cnoise(vec2(modelPosition.x, uTime * uSeed));
+        float noiseZ = cnoise(vec2(normal.y * modelPosition.y * uSeed, uTime * uSeed));
+        
+        modelPosition.x += sin(noiseX * uSeed + uTime * 2. + uSeed) * .1;
+        modelPosition.y += cos(noiseY * 3. + uTime * 2. + uSeed * .1) * .1;
+        modelPosition.z += sin(noiseZ * uSeed + uTime * 2. + uSeed) * .1;
+        gl_Position = projectionMatrix * modelPosition;
+        `,
+      );
+    };
+
+    super(userGeometry, userMaterial);
+    this.uniforms = uniforms;
     this.nameEl = document.createElement('h2');
     this.nameEl.innerText = name;
     this.nameEl.id = id;
@@ -44,16 +98,12 @@ export class UserMesh extends Mesh {
     console.log('columnsIndex', UserMesh.columnsIndex);
 
     this.position.set(UserMesh.rowsIndex * 1.2, UserMesh.columnsIndex * 3, 0);
-
-    // const center = new Vector3();
-    // const size = new Vector3();
-    // const box = new Box3().setFromObject(UserMesh.userMeshesGroup);
-    // box.getCenter(center);
-    // box.getSize(size);
-
-    // box.setFromObject(UserMesh.userMeshesGroup);
-    // box.getCenter(center);
-    // box.getSize(size);
+    gsap.to(UserMesh.userMeshesGroup.position, {
+      duration: 0.75,
+      x: -UserMesh.rowsIndex * 0.6,
+      y: -UserMesh.columnsIndex * 1.5,
+      ease: 'power3.out',
+    });
 
     if (UserMesh.rowsIndex <= 5) UserMesh.rowsIndex++;
     else {
@@ -70,16 +120,15 @@ export class UserMesh extends Mesh {
     const x = (tempV.x * 0.5 + 0.5) * UserMesh.canvas.clientWidth;
     const y = (tempV.y * -0.5 + 0.5) * UserMesh.canvas.clientHeight;
 
-    this.nameEl.style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
-
-    // if (Math.abs(UserMesh.columnsIndex) <= gridSize) UserMesh.columnsIndex--;
-    // else UserMesh.columnsIndex = 0;
-    // if (UserMesh.columnsIndex >= gridSize) UserMesh.columnsIndex = 0;
+    const scaleFactor = UserMesh.scene.camera.zoom / 125;
+    this.nameEl.style.transform = `translate(-50%, -50%) translate(${x}px,calc(${y}px + ${
+      12 * scaleFactor
+    }rem)) scale(${scaleFactor})`;
   }
 
   static update() {
     UserMesh.userMeshes.forEach((userMesh) => {
-      (userMesh.material as ShaderMaterial).uniforms.uTime.value = raf.elapsedTime;
+      userMesh.uniforms.uTime.value = raf.elapsedTime;
 
       const tempV = new Vector3();
 
@@ -90,8 +139,11 @@ export class UserMesh extends Mesh {
 
       const x = (tempV.x * 0.5 + 0.5) * UserMesh.canvas.clientWidth;
       const y = (tempV.y * -0.5 + 0.5) * UserMesh.canvas.clientHeight;
+      const scaleFactor = UserMesh.scene.camera.zoom / 100;
 
-      userMesh.nameEl.style.transform = `translate(-50%, -50%) translate(${x}px,calc(${y}px + 12rem)`;
+      userMesh.nameEl.style.transform = `translate(-50%, -50%) translate(${x}px,calc(${y}px + ${
+        12 * scaleFactor
+      }rem)) scale(${scaleFactor})`;
     });
   }
 
@@ -114,21 +166,14 @@ export class UserMesh extends Mesh {
 
   static cloneUser(id: string, name: string) {
     const clonedMesh = [...UserMesh.userMeshes.values()][0].clone();
-    (clonedMesh.material as ShaderMaterial) = (
-      clonedMesh.material as ShaderMaterial
-    ).clone();
-    const clonedMaterial = clonedMesh.material as ShaderMaterial;
-    const seed = Math.random();
-    clonedMaterial.uniforms.uSeed.value = seed;
-
+    // (clonedMesh.material as MeshMatcapMaterial) = (
+    //   clonedMesh.material as MeshMatcapMaterial
+    // ).clone();
+    // clonedMesh.uniforms.uTime.value = raf.elapsedTime;
     clonedMesh.nameEl.innerText = name;
     clonedMesh.nameEl.id = id;
 
     clonedMesh.positionMesh();
-
-    // clonedMesh.rotation.set(Math.PI * 2 * seed, Math.PI * 2 * seed, Math.PI * 2 * seed);
-    // UserMesh.userMeshes.set(id, clonedMesh);
-    // UserMesh.userMaterials.set(id, clonedMaterial);
 
     return clonedMesh;
   }

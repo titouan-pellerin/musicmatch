@@ -1,55 +1,91 @@
 import { UserMesh } from './UserMesh';
-import { forceSimulation, Simulation } from 'd3-force';
-import { SimpleUser, UserAnalysis } from '../../../typings';
-import gsap from 'gsap';
+import * as d3 from 'd3';
+import { force, forceLink, forceSimulation, Simulation } from 'd3-force';
+import { UserAnalysis } from '../../../typings';
 
 export class ForceGraph {
   relations: Map<string, number>;
+  d3Relations: {
+    nodes: { index: number }[];
+    links: { source: number; target: number; value: number }[];
+  } = { nodes: [], links: [] };
   usersAnalysis: UserAnalysis[];
+  d3Simulation: Simulation<any, any> | null = null;
+
   constructor(usersAnalysis: UserAnalysis[]) {
     this.relations = new Map();
     this.usersAnalysis = usersAnalysis;
   }
 
-  showRelations() {
-    this.usersAnalysis.forEach((userAnalysis) => {
-      userAnalysis.usersWithScores.forEach((userWithScore) => {
-        const usersPair = userAnalysis.user.id + ':' + userWithScore.user.id;
-        const reversedUsersPair = userWithScore.user.id + ':' + userAnalysis.user.id;
-        console.log(
-          usersPair,
-          reversedUsersPair,
-          this.relations.get(userAnalysis.user.id + ':' + userWithScore.user.id),
-          this.relations.get(userWithScore.user.id + ':' + userAnalysis.user.id),
-        );
+  // showRelations() {
+  //   this.usersAnalysis.forEach((userAnalysis, index) => {
+  //     this.d3Relations.nodes.push({ index });
 
-        if (!(this.relations.has(usersPair) || this.relations.has(reversedUsersPair)))
-          this.relations.set(
-            usersPair,
-            userWithScore.scores.artistsScore.score +
-              userWithScore.scores.tracksScore.score +
-              userWithScore.scores.genresScore.score,
-          );
-      });
-    });
+  //     userAnalysis.usersWithScores.forEach((userWithScores) => {
+  //       const usersPair = userAnalysis.user.id + ':' + userWithScores.user.id;
+  //       const reversedUsersPair = userWithScores.user.id + ':' + userAnalysis.user.id;
 
-    this.relations.forEach((force, key) => {
-      const ids = key.split(':');
-      const startMesh = UserMesh.userMeshes.get(ids[0]) as UserMesh;
-      const targetMesh = UserMesh.userMeshes.get(ids[1]) as UserMesh;
-      const normalizedForce = this.normalize(force, 105.5, 0);
-      gsap.to(targetMesh.position, {
-        duration: 0.75,
-        stagger: 0.3,
-        x: startMesh.position.x + Math.cos(normalizedForce) + 2,
-        y: startMesh.position.y + Math.sin(normalizedForce) + 2,
-      });
-    });
+  //       if (!(this.relations.has(usersPair) || this.relations.has(reversedUsersPair))) {
+  //         const force =
+  //           userWithScores.scores.artistsScore.score +
+  //           userWithScores.scores.tracksScore.score +
+  //           userWithScores.scores.genresScore.score;
+  //         this.relations.set(usersPair, force);
 
-    return this.relations;
-  }
+  //         this.d3Relations.links.push({
+  //           source: index,
+  //           target: this.usersAnalysis.indexOf(
+  //             this.usersAnalysis.filter(
+  //               (userAnalysis) => userAnalysis.user.id === userWithScores.user.id,
+  //             )[0],
+  //           ),
+  //           value: force,
+  //         });
+  //       }
+  //       console.log(
+  //         userAnalysis.user.spotify.name +
+  //           ' matches at ' +
+  //           (userWithScores.scores.artistsScore.score +
+  //             userWithScores.scores.tracksScore.score +
+  //             userWithScores.scores.genresScore.score) +
+  //           ' with ' +
+  //           userWithScores.user.spotify.name,
+  //       );
+  //     });
+  //   });
+  //   const forceNode = d3.forceManyBody();
+  //   const forceLink = d3
+  //     .forceLink(this.d3Relations.links)
+  //     .distance((d) => (1 / d.value) * 20);
 
-  normalize(val: number, max: number, min: number) {
-    return 1 / ((val - min) / (max - min));
-  }
+  //   this.d3Simulation = d3
+  //     .forceSimulation(this.d3Relations.nodes)
+  //     .force('link', forceLink)
+  //     .force('charge', forceNode)
+  //     .force('center', d3.forceCenter())
+  //     .stop();
+
+  //   for (
+  //     let i = 0,
+  //       n = Math.ceil(
+  //         Math.log(this.d3Simulation.alphaMin()) /
+  //           Math.log(1 - this.d3Simulation.alphaDecay()),
+  //       );
+  //     i < n;
+  //     ++i
+  //   ) {
+  //     console.log(i);
+
+  //     this.d3Simulation.tick();
+  //   }
+  //   console.log(this.d3Simulation.nodes());
+
+  //   this.d3Simulation.nodes().forEach((node, i) => {
+  //     const meshToMove = UserMesh.userMeshes.get(
+  //       this.usersAnalysis[i].user.id,
+  //     ) as UserMesh;
+  //     meshToMove.position.set(node.x * 0.35, node.y * 0.35, 0);
+  //   });
+  //   // return this.d3Relations.nodes;
+  // }
 }

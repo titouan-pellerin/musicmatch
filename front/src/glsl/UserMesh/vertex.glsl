@@ -4,8 +4,6 @@ varying vec3 vNormal;
 uniform float uTime;
 uniform float uSeed;
 
-#include ../utils/noise.glsl;
-
 void main() {
     vUv = uv;
     vNormal = normal;
