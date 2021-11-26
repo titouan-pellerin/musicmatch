@@ -1,6 +1,3 @@
-import { UserMesh } from './UserMesh';
-import * as d3 from 'd3';
-import { force, forceLink, forceSimulation, Simulation } from 'd3-force';
 import { UserAnalysis } from '../../../typings';
 
 export class ForceGraph {
@@ -10,7 +7,6 @@ export class ForceGraph {
     links: { source: number; target: number; value: number }[];
   } = { nodes: [], links: [] };
   usersAnalysis: UserAnalysis[];
-  d3Simulation: Simulation<any, any> | null = null;
 
   constructor(usersAnalysis: UserAnalysis[]) {
     this.relations = new Map();

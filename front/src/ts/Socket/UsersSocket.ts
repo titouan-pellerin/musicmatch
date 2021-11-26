@@ -3,7 +3,7 @@ import { UserMesh } from './../Three/UserMesh';
 import { SimpleUser, UserAnalysis } from './../../../typings/index';
 import { io, Socket } from 'socket.io-client';
 import { MainScene } from '../Three/MainScene';
-import { Group, Mesh, ShaderMaterial, Vector3 } from 'three';
+import { Mesh } from 'three';
 import gsap from 'gsap';
 import { ArtistsListEl } from '../Spotify/Elements/ArtistsListEl';
 import { TracksListEl } from '../Spotify/Elements/TracksListEl';

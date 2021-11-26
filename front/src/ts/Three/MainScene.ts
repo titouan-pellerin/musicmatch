@@ -1,11 +1,9 @@
 import { UserMesh } from './UserMesh';
-import * as THREE from 'three';
 import raf from '../utils/Raf';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { AmbientLight, Scene } from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { AmbientLight, MOUSE, OrthographicCamera, Scene, WebGLRenderer } from 'three';
 
-export class MainScene extends THREE.Scene {
+export class MainScene extends Scene {
   canvas: HTMLCanvasElement;
   renderer: THREE.WebGLRenderer;
   camera: THREE.OrthographicCamera;
@@ -27,7 +25,7 @@ export class MainScene extends THREE.Scene {
     this.add(UserMesh.userMeshesGroup);
 
     const aspect = this.sizes.width / this.sizes.height;
-    this.camera = new THREE.OrthographicCamera(
+    this.camera = new OrthographicCamera(
       (this.cameraFrustumSize * aspect) / -2,
       (this.cameraFrustumSize * aspect) / 2,
       this.cameraFrustumSize / 2,
@@ -45,9 +43,9 @@ export class MainScene extends THREE.Scene {
     this.controls.dampingFactor = 0.05;
     this.controls.enableRotate = false;
     this.controls.mouseButtons = {
-      LEFT: THREE.MOUSE.PAN,
-      MIDDLE: THREE.MOUSE.DOLLY,
-      RIGHT: THREE.MOUSE.PAN,
+      LEFT: MOUSE.PAN,
+      MIDDLE: MOUSE.DOLLY,
+      RIGHT: MOUSE.PAN,
     };
     this.controls.update();
 
@@ -67,7 +65,7 @@ export class MainScene extends THREE.Scene {
     //   console.log(scene);
     // });
 
-    this.renderer = new THREE.WebGLRenderer({
+    this.renderer = new WebGLRenderer({
       canvas: this.canvas,
       powerPreference: 'high-performance',
       antialias: true,
