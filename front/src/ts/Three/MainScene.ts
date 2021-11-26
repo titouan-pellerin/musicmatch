@@ -1,7 +1,14 @@
 import { UserMesh } from './UserMesh';
 import raf from '../utils/Raf';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { AmbientLight, MOUSE, OrthographicCamera, Scene, WebGLRenderer } from 'three';
+import {
+  AmbientLight,
+  MOUSE,
+  OrthographicCamera,
+  Scene,
+  TOUCH,
+  WebGLRenderer,
+} from 'three';
 
 export class MainScene extends Scene {
   canvas: HTMLCanvasElement;
@@ -46,6 +53,10 @@ export class MainScene extends Scene {
       LEFT: MOUSE.PAN,
       MIDDLE: MOUSE.DOLLY,
       RIGHT: MOUSE.PAN,
+    };
+    this.controls.touches = {
+      ONE: TOUCH.PAN,
+      TWO: TOUCH.DOLLY_PAN,
     };
     this.controls.update();
 

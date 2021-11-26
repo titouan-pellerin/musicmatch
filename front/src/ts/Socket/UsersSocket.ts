@@ -81,7 +81,7 @@ export class UsersSocket {
   async analysisDone(usersAnalysis: UserAnalysis[]) {
     console.log('analysis done');
     document.querySelector('.start-btn-container')?.classList.add('hidden');
-
+    // document.querySelector('.hint-container')?.classList.remove('hidden');
     this.usersAnalysis = usersAnalysis;
     // this.forceGraph = new ForceGraph(usersAnalysis);
     // this.forceGraph.showRelations();
@@ -134,6 +134,8 @@ export class UsersSocket {
 
       document.querySelector('.canvas-container')?.classList.add('reduced');
       document.querySelector('.back-btn-container')?.classList.remove('hidden');
+      // document.querySelector('.hint-container')?.classList.add('hidden');
+
       const currentUserMesh = UserMesh.userMeshes.get(id) as Mesh;
       const bestMatch = currentUserAnalysis.usersWithScores[0];
       const score = Math.ceil(
@@ -256,6 +258,7 @@ export class UsersSocket {
     console.log(UserMesh.userMeshesGroupPositions);
     console.log(UserMesh.userMeshesGroup);
 
+    // document.querySelector('.hint-container')?.classList.remove('hidden');
     document.querySelector('.canvas-container')?.classList.remove('reduced');
     document.querySelector('.back-btn-container')?.classList.add('hidden');
     document.querySelector('.results')?.classList.remove('show');

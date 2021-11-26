@@ -4,13 +4,13 @@ import './style.scss';
 import { UsersSocket } from './ts/Socket/UsersSocket';
 import { MainScene } from './ts/Three/MainScene';
 
-const PROD = import.meta.env.PROD;
-const BACK_URL = PROD
-  ? import.meta.env.VITE_BACK_URL
-    ? (import.meta.env.VITE_BACK_URL as string)
-    : 'http://10.137.98.224:8081'
-  : 'http://10.137.98.224:8081';
-
+// const PROD = import.meta.env.PROD;
+// const BACK_URL = PROD
+//   ? import.meta.env.VITE_BACK_URL
+//     ? (import.meta.env.VITE_BACK_URL as string)
+//     : 'http://192.168.164.238:8081'
+//   : 'http://192.168.164.238:8081';
+const BACK_URL = 'http://10.137.98.224:8081';
 /** Spotify */
 let accessToken: string | null = null;
 const spotifyLogin = new SpotifyLogin(BACK_URL);
