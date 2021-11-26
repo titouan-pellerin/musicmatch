@@ -87,7 +87,7 @@ function compareTracks(tracks, tracksToCompare) {
         JSON.stringify(trackToCompare) === JSON.stringify(track)
     );
     if (tracksMatch.length === 1) {
-      score++;
+      score += 2;
       matchingTracks.push(track);
     }
   });
@@ -101,8 +101,8 @@ function compareGenres(genres, genresToCompare) {
     genresToCompare.forEach((genreToCompare, indexToCompare) => {
       if (genre.genre === genreToCompare.genre) {
         score += Math.min(
-          0.1 * (genres.length - index),
-          0.1 * (genresToCompare.length - indexToCompare)
+          0.5 * (genres.length - index),
+          0.5 * (genresToCompare.length - indexToCompare)
         );
         matchingGenres.push(genre.genre);
       }

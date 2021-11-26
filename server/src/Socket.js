@@ -72,9 +72,10 @@ class Connection {
   }
 
   startAnalysis() {
+    console.log("start");
     analyzedData = analyse(usersSockets);
-    console.log(analyzedData);
     this.io.sockets.emit("analysisDone", analyzedData);
+    console.log("done");
   }
 
   //   getMessages() {
