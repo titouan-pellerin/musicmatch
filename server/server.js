@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const http = require("http");
@@ -15,7 +16,6 @@ app.use(
 app.use("/login", require("./routes/login"));
 app.use("/callback", require("./routes/callback"));
 app.use("/refresh_token", require("./routes/refresh_token"));
-app.use("/analyzed_data", require("./routes/analyzed_data"));
 
 const io = new Server(server, {
   cors: {
