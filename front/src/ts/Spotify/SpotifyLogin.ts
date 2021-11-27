@@ -28,9 +28,13 @@ export class SpotifyLogin {
       );
 
       window.addEventListener('message', (e) => {
+        console.log(e.origin);
+        console.log(this.exchangeHost);
+
+        const hash = JSON.parse(e.data);
         if (e.origin === this.exchangeHost) {
-          const hash = JSON.parse(e.data);
-          if (hash.type == 'access_token') {
+          if (hash.type === 'access_token') {
+            console.log('here');
             this.accessToken = hash.access_token;
             this.expiresIn = hash.expires_in;
             if (this.accessToken === '') {
@@ -42,7 +46,11 @@ export class SpotifyLogin {
               resolve(hash.access_token);
             }
           }
-        } else reject();
+        } else {
+          console.log(JSON.parse(e.data).type);
+
+          reject();
+        }
       });
     });
   }
