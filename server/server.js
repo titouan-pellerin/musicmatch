@@ -8,12 +8,14 @@ const cors = require("cors");
 
 const { socket } = require("./src/Socket");
 const { getAnalyzedData } = require("./src/Socket");
+const { front_url } = require("./config/credentials");
 
 console.log(getAnalyzedData());
 
 app.use(
   cors({
-    origin: "*",
+    origin: front_url,
+    methods: ["GET"],
   })
 );
 
@@ -26,7 +28,7 @@ app.use("/refresh_token", require("./routes/refresh_token"));
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: front_url,
     methods: ["GET", "POST"],
   },
 });
