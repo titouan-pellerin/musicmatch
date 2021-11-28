@@ -5,4 +5,8 @@ module.exports = {
     process.env.NODE_ENV === "production"
       ? process.env.REDIRECT_URI
       : "http://localhost:8081/callback",
+  front_url:
+    process.env.NODE_ENV === "production"
+      ? process.env.FRONT_URL
+      : "localhost:8080",
 };

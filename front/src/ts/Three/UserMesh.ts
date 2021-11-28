@@ -36,6 +36,7 @@ export class UserMesh extends Mesh {
   };
   constructor(id: string, name: string) {
     const userGeometry = new TorusGeometry(1, 0.09, 64, 64);
+
     const userMaterial = new MeshMatcapMaterial({});
     const uniforms = {
       uTime: { value: raf.elapsedTime },
