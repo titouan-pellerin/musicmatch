@@ -63,19 +63,6 @@ export class MainScene extends Scene {
     const ambientLight = new AmbientLight(100);
     this.add(ambientLight);
 
-    // const glftLoader = new GLTFLoader();
-    // glftLoader.load('/models/cd.gltf', (gltf) => {
-    //   const scene = gltf.scene;
-    //   scene.children[0].material.opacity = 0.5;
-    //   scene.children[0].material.transparent = true;
-    //   scene.children[1].material.opacity = 0.5;
-    //   scene.children[1].material.transparent = true;
-    //   scene.children[2].material.opacity = 0.5;
-    //   scene.children[2].material.transparent = true;
-    //   this.add(scene);
-    //   console.log(scene);
-    // });
-
     this.renderer = new WebGLRenderer({
       canvas: this.canvas,
       powerPreference: 'high-performance',

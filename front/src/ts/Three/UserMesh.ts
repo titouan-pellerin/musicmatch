@@ -35,7 +35,6 @@ export class UserMesh extends Mesh {
     uSeed: { value: number };
   };
   constructor(id: string, name: string) {
-    console.log('constructor');
     const userGeometry = new TorusGeometry(1, 0.09, 64, 64);
     const userMaterial = new MeshMatcapMaterial({});
     const uniforms = {
@@ -46,7 +45,6 @@ export class UserMesh extends Mesh {
     userMaterial.onBeforeCompile = (shader) => {
       shader.uniforms.uTime = uniforms.uTime;
       shader.uniforms.uSeed = uniforms.uSeed;
-      console.log(shader.vertexShader);
 
       shader.vertexShader = shader.vertexShader.replace(
         '#include <common>',
@@ -91,13 +89,6 @@ export class UserMesh extends Mesh {
   }
 
   positionMesh() {
-    console.log('position');
-
-    const gridSize = Math.ceil(Math.sqrt(UserMesh.userMeshes.size));
-    console.log('grid size', gridSize);
-    console.log('rowsIndex', UserMesh.rowsIndex);
-    console.log('columnsIndex', UserMesh.columnsIndex);
-
     this.position.set(UserMesh.rowsIndex * 1.2, UserMesh.columnsIndex * 3, 0);
     gsap.to(UserMesh.userMeshesGroup.position, {
       duration: 0.75,

@@ -5,7 +5,11 @@ const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const cors = require("cors");
+
 const { socket } = require("./src/Socket");
+const { getAnalyzedData } = require("./src/Socket");
+
+console.log(getAnalyzedData());
 
 app.use(
   cors({
@@ -15,6 +19,9 @@ app.use(
 
 app.use("/login", require("./routes/login"));
 app.use("/callback", require("./routes/callback"));
+app.use("/analyzed_data", (req, res) => {
+  res.status(200).json(getAnalyzedData());
+});
 app.use("/refresh_token", require("./routes/refresh_token"));
 
 const io = new Server(server, {

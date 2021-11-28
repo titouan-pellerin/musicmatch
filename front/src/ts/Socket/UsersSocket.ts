@@ -1,6 +1,11 @@
 import { ForceGraph } from './../Three/ForceGraph';
 import { UserMesh } from './../Three/UserMesh';
-import { SimpleUser, UserAnalysis } from './../../../typings/index';
+import {
+  SimpleUser,
+  UserAnalysis,
+  ReallySimplifiedArtist,
+  ReallySimplifiedTrack,
+} from './../../../typings/index';
 import { io, Socket } from 'socket.io-client';
 import { MainScene } from '../Three/MainScene';
 import { Mesh } from 'three';
@@ -11,31 +16,34 @@ import { GenresListEl } from '../Spotify/Elements/GenresListEl';
 
 export class UsersSocket {
   socket: Socket;
-  usersDiv: HTMLDivElement | null = null;
+  serverUrl: String;
   users: SimpleUser[] = [];
   scene: MainScene;
+  startBtn: HTMLButtonElement | null = null;
   currentUser: string | null = null;
   usersAnalysis: UserAnalysis[] | null = null;
   forceGraph: ForceGraph | null = null;
   constructor(serverUrl: string, scene: MainScene) {
     this.scene = scene;
-    this.usersDiv = document.querySelector('.users');
+    this.startBtn = document.querySelector('.start-btn');
+    this.startBtn?.addEventListener('click', this.startAnalysis.bind(this));
+
+    this.serverUrl = serverUrl;
     this.socket = io(serverUrl);
 
     this.socket.on('connect', () => {
-      console.log(this.socket.id);
       this.currentUser = this.socket.id;
     });
 
-    this.socket.on('disconnect', () => {
-      console.log(this.socket.id);
-    });
+    this.socket.on('disconnect', () => {});
 
     this.socket.emit('getUsers');
 
     this.socket.on('users', this.getUsers.bind(this));
 
     this.socket.on('spotifyUpdate', this.addUser.bind(this));
+
+    this.socket.on('loadingAnalysis', this.loadingAnalysis.bind(this));
 
     this.socket.on('analysisDone', this.analysisDone.bind(this));
 
@@ -45,8 +53,8 @@ export class UsersSocket {
   setSpotify(spotifyData: {
     name: string;
     id: string;
-    artists: SpotifyApi.ArtistObjectFull[];
-    tracks: SpotifyApi.TrackObjectFull[];
+    artists: ReallySimplifiedArtist[];
+    tracks: ReallySimplifiedTrack[];
   }) {
     this.socket.emit('setSpotify', spotifyData);
   }
@@ -58,7 +66,8 @@ export class UsersSocket {
   }
 
   async addUser(user: SimpleUser) {
-    console.log(user.spotify.name);
+    console.log(user);
+
     if (!UserMesh.userMeshes.has(user.id)) {
       this.users.push(user);
       this.createUserMesh(user);
@@ -66,23 +75,28 @@ export class UsersSocket {
   }
 
   removeUser(user: SimpleUser) {
-    console.log('remove user', user.spotify.name);
-
     this.users.splice(this.users.indexOf(user), 1);
     UserMesh.remove(user.id);
   }
 
   startAnalysis() {
     this.socket.emit('startAnalysis');
-    const startBtn = document.querySelector('.start-btn');
-    if (startBtn) startBtn.textContent = 'Loading...';
+    // if (this.startBtn) this.startBtn.textContent = 'Loading...';
   }
 
-  async analysisDone(usersAnalysis: UserAnalysis[]) {
-    console.log('analysis done');
+  loadingAnalysis() {
+    if (this.startBtn) {
+      this.startBtn.textContent = 'Loading...';
+      this.startBtn.removeEventListener('click', this.startAnalysis);
+    }
+  }
+
+  async analysisDone() {
     document.querySelector('.start-btn-container')?.classList.add('hidden');
-    // document.querySelector('.hint-container')?.classList.remove('hidden');
-    this.usersAnalysis = usersAnalysis;
+    document.querySelector('.hint-container')?.classList.remove('hidden');
+    this.usersAnalysis = (await fetch(this.serverUrl + '/analyzed_data').then(
+      (response) => response.json(),
+    )) as UserAnalysis[];
     // this.forceGraph = new ForceGraph(usersAnalysis);
     // this.forceGraph.showRelations();
     // this.showUserMatch();
@@ -91,7 +105,6 @@ export class UsersSocket {
   createUserMesh(user: SimpleUser) {
     let currentMesh: UserMesh;
     if (UserMesh.userMeshes.size === 0) {
-      console.log('first');
       currentMesh = new UserMesh(user.id, user.spotify.name);
     } else currentMesh = UserMesh.cloneUser(user.id, user.spotify.name);
 
@@ -107,9 +120,6 @@ export class UsersSocket {
       z: 1,
       ease: 'power3.out',
     });
-    console.log(UserMesh.userMeshes.size);
-    console.log(currentMesh.position);
-
     UserMesh.userMeshesGroup.add(currentMesh);
   }
 
@@ -124,8 +134,6 @@ export class UsersSocket {
         );
         UserMesh.userMeshesGroupPosition = UserMesh.userMeshesGroup.position.clone();
       }
-
-      console.log(UserMesh.userMeshesGroupPositions);
       const id = (e.target as HTMLHeadingElement).id;
       // this.forceGraph?.d3Simulation?.stop();
       const currentUserAnalysis = this.usersAnalysis.filter(
@@ -134,7 +142,7 @@ export class UsersSocket {
 
       document.querySelector('.canvas-container')?.classList.add('reduced');
       document.querySelector('.back-btn-container')?.classList.remove('hidden');
-      // document.querySelector('.hint-container')?.classList.add('hidden');
+      document.querySelector('.hint-container')?.classList.add('hidden');
 
       const currentUserMesh = UserMesh.userMeshes.get(id) as Mesh;
       const bestMatch = currentUserAnalysis.usersWithScores[0];
@@ -254,11 +262,7 @@ export class UsersSocket {
     }
   }
   previous() {
-    console.log('test');
-    console.log(UserMesh.userMeshesGroupPositions);
-    console.log(UserMesh.userMeshesGroup);
-
-    // document.querySelector('.hint-container')?.classList.remove('hidden');
+    document.querySelector('.hint-container')?.classList.remove('hidden');
     document.querySelector('.canvas-container')?.classList.remove('reduced');
     document.querySelector('.back-btn-container')?.classList.add('hidden');
     document.querySelector('.results')?.classList.remove('show');
@@ -273,8 +277,6 @@ export class UsersSocket {
     });
     (UserMesh.userMeshesGroup.children as UserMesh[]).forEach((child, i) => {
       child.nameEl?.classList.remove('hidden');
-      // console.log('show', document.getElementById(child.userId));
-
       gsap.to(child.position, {
         duration: 0.75,
         stagger: 0.3,

@@ -1,6 +1,7 @@
+import { ReallySimplifiedArtist } from './../../../../typings/index';
 export class ArtistsListEl {
   artistsEl: HTMLUListElement;
-  constructor(artists: SpotifyApi.ArtistObjectFull[]) {
+  constructor(artists: ReallySimplifiedArtist[]) {
     this.artistsEl = document.createElement('ul');
     this.artistsEl.classList.add('artists-list');
 
@@ -18,7 +19,7 @@ export class ArtistsListEl {
         const nameEl = document.createElement('h3');
         nameEl.textContent = artist.name;
         const imgEl = document.createElement('img');
-        imgEl.src = artist.images[0].url;
+        imgEl.src = artist.image;
         artistEl.appendChild(imgEl);
         artistEl.appendChild(nameEl);
         artistEl.id = artist.id;

@@ -12,13 +12,30 @@ export interface FullUser {
   };
 }
 
+export interface ReallySimplifiedArtist {
+  id: string;
+  name: string;
+  image: string;
+}
+
+export interface ReallySimplifiedTrack {
+  id: string;
+  name: string;
+  album: {
+    id: string;
+    image: string;
+    name: string;
+  };
+  artists: { id: string; name: string }[];
+}
+
 export interface UserAnalysis {
   user: {
     id: string;
     spotify: {
       name: string;
-      tracks: SpotifyApi.TrackObjectFull[];
-      artists: SpotifyApi.ArtistObjectFull[];
+      tracks: ReallySimplifiedArtist[];
+      artists: ReallySimplifiedArtist[];
       genres: [
         {
           genre: string;
@@ -32,11 +49,11 @@ export interface UserAnalysis {
       scores: {
         artistsScore: {
           score: number;
-          matchingArtists: SpotifyApi.ArtistObjectFull[];
+          matchingArtists: ReallySimplifiedArtist[];
         };
         tracksScore: {
           score: number;
-          matchingTracks: SpotifyApi.TrackObjectFull[];
+          matchingTracks: ReallySimplifiedTrack[];
         };
         genresScore: {
           score: number;
@@ -47,14 +64,7 @@ export interface UserAnalysis {
         id: string;
         spotify: {
           name: string;
-          tracks: SpotifyApi.TrackObjectFull[];
-          artists: SpotifyApi.ArtistObjectFull[];
-          genres: [
-            {
-              genre: string;
-              score: number;
-            },
-          ];
+          id: string;
         };
       };
     },

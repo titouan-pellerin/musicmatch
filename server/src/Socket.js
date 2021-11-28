@@ -2,7 +2,7 @@ const analyse = require("./Analysis");
 
 const usersSockets = new Map();
 
-let analyzedData;
+let analyzedData = [];
 
 class Connection {
   constructor(io, socket) {
@@ -72,10 +72,11 @@ class Connection {
   }
 
   startAnalysis() {
-    // console.time("start");
+    console.time("analysis");
+    this.io.sockets.emit("loadingAnalysis");
     analyzedData = analyse(usersSockets);
-    this.io.sockets.emit("analysisDone", analyzedData);
-    // console.timeEnd("start");
+    this.io.sockets.emit("analysisDone");
+    console.timeEnd("analysis");
   }
 
   //   getMessages() {
@@ -96,4 +97,8 @@ function socket(io) {
   });
 }
 
-module.exports = { socket, analyzedData };
+function getAnalyzedData() {
+  return analyzedData;
+}
+
+module.exports = { socket, getAnalyzedData };

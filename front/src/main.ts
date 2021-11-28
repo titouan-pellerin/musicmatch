@@ -50,16 +50,10 @@ async function loginSpotify() {
       const userData = await spotifyData.getData();
       usersSocket.setSpotify(userData);
 
-      startBtn = document.querySelector('.start-btn');
       document.querySelector('.start-btn-container')?.classList.remove('hidden');
-      startBtn?.addEventListener('click', startAnalysis);
     }
   } catch (err) {
     console.error(err);
     // window.location.reload();
   }
-}
-
-function startAnalysis() {
-  usersSocket?.startAnalysis();
 }

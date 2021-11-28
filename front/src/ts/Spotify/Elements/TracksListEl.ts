@@ -1,6 +1,7 @@
+import { ReallySimplifiedTrack } from './../../../../typings/index';
 export class TracksListEl {
   tracksEl: HTMLUListElement;
-  constructor(tracks: SpotifyApi.TrackObjectFull[]) {
+  constructor(tracks: ReallySimplifiedTrack[]) {
     this.tracksEl = document.createElement('ul');
     this.tracksEl.classList.add('tracks-list');
     if (tracks.length === 0) {
@@ -29,7 +30,7 @@ export class TracksListEl {
         infoEl.appendChild(artistsEl);
 
         const imgEl = document.createElement('img');
-        imgEl.src = track.album.images[0].url;
+        imgEl.src = track.album.image;
 
         const trackEl = document.createElement('li');
         trackEl.appendChild(imgEl);
