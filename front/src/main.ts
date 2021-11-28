@@ -50,11 +50,9 @@ async function loginSpotify() {
       const userData = await spotifyData.getData();
       usersSocket.setSpotify(userData);
 
-      if (userData.id === '21mt764g6tshzefezye2zx4oq') {
-        startBtn = document.querySelector('.start-btn');
-        document.querySelector('.start-btn-container')?.classList.remove('hidden');
-        startBtn?.addEventListener('click', startAnalysis);
-      }
+      startBtn = document.querySelector('.start-btn');
+      document.querySelector('.start-btn-container')?.classList.remove('hidden');
+      startBtn?.addEventListener('click', startAnalysis);
     }
   } catch (err) {
     console.error(err);
