@@ -20,9 +20,6 @@ let spotifyBtn: HTMLButtonElement | null = null;
 /** Socket */
 let usersSocket: UsersSocket | null = null;
 
-/** Experience */
-let startBtn: HTMLButtonElement | null = null;
-
 /** THREE */
 let canvas: HTMLCanvasElement | null = null;
 let mainScene: MainScene | null = null;
