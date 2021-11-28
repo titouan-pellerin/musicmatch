@@ -13,6 +13,7 @@ export interface FullUser {
 }
 
 export interface ReallySimplifiedArtist {
+  genres: any;
   id: string;
   name: string;
   image: string;

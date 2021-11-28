@@ -1,9 +1,9 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const { client_id, redirect_uri } = require("../config/credentials");
+import { client_id, redirect_uri } from "../config/credentials";
 
-router.route("/").get((req, res) => {
+router.route("/").get((_req, res) => {
   const state = randomString(16);
   const scope = "user-top-read user-read-private user-read-email";
 
@@ -18,9 +18,9 @@ router.route("/").get((req, res) => {
     "https://accounts.spotify.com/authorize?" + authQueryParameters.toString()
   );
 });
-module.exports = router;
+export default router;
 
-const randomString = (length) => {
+const randomString = (length: number) => {
   let result = "";
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

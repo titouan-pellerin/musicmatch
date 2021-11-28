@@ -1,22 +1,31 @@
-function analyze(users) {
-  const analyzedUsers = [];
+import { Socket } from "socket.io";
+import {
+  UserAnalysis,
+  SocketUser,
+  UserWithScore,
+  ReallySimplifiedTrack,
+  ReallySimplifiedArtist,
+} from "../../typings";
+
+export function analyze(users: Map<Socket, SocketUser>) {
+  const analyzedUsers: UserAnalysis[] = [];
   console.time("first loop");
   users.forEach((user, key) => {
-    let usersWithScores = [];
+    let usersWithScores: UserWithScore[] = [];
 
     const userTracks = user.spotify.tracks;
     const userArtists = user.spotify.artists;
-    const userGenres = [];
+    const userGenres: { genre: string; score: number }[] = [];
 
     const usersToCompare = new Map(users);
     usersToCompare.delete(key);
 
     console.time("second loop");
-    usersToCompare.forEach((userToCompare, keyToCompare) => {
+    usersToCompare.forEach((userToCompare) => {
       console.time("inner loop");
       const userTracksToCompare = userToCompare.spotify.tracks;
       const userArtistsToCompare = userToCompare.spotify.artists;
-      const userGenresToCompare = [];
+      const userGenresToCompare: { genre: string; score: number }[] = [];
 
       console.time("artists");
       const artistsScore = compareArtists(
@@ -41,10 +50,9 @@ function analyze(users) {
       usersWithScores.push({
         user: {
           id: userToCompare.id,
-          name: userToCompare.name,
           spotify: {
-            id: userToCompare.spotify.id,
             name: userToCompare.spotify.name,
+            id: userToCompare.spotify.id,
           },
         },
         scores: { artistsScore, tracksScore, genresScore },
@@ -64,7 +72,7 @@ function analyze(users) {
     user.spotify.genres = userGenres;
 
     analyzedUsers.push({
-      user: { ...user },
+      user,
       usersWithScores,
     });
     console.timeEnd("second loop");
@@ -75,13 +83,13 @@ function analyze(users) {
 }
 
 function compareArtists(
-  artists,
-  artistsToCompare,
-  userGenres,
-  userGenresToCompare
+  artists: ReallySimplifiedArtist[],
+  artistsToCompare: ReallySimplifiedArtist[],
+  userGenres: { genre: string; score: number }[],
+  userGenresToCompare: { genre: string; score: number }[]
 ) {
   let score = 0;
-  let matchingArtists = [];
+  let matchingArtists: ReallySimplifiedArtist[] = [];
   artists.forEach((artist, index) => {
     addUserGenre(artist, userGenres);
     if (artistsToCompare[index])
@@ -97,9 +105,12 @@ function compareArtists(
   return { score, matchingArtists };
 }
 
-function compareTracks(tracks, tracksToCompare) {
+function compareTracks(
+  tracks: ReallySimplifiedTrack[],
+  tracksToCompare: ReallySimplifiedTrack[]
+) {
   let score = 0;
-  let matchingTracks = [];
+  let matchingTracks: ReallySimplifiedTrack[] = [];
   tracks.forEach((track) => {
     const tracksMatch = tracksToCompare.filter(
       (trackToCompare) => trackToCompare.id === track.id
@@ -112,9 +123,12 @@ function compareTracks(tracks, tracksToCompare) {
   return { score, matchingTracks };
 }
 
-function compareGenres(genres, genresToCompare) {
+function compareGenres(
+  genres: { genre: string; score: number }[],
+  genresToCompare: { genre: string; score: number }[]
+) {
   let score = 0;
-  let matchingGenres = [];
+  let matchingGenres: string[] = [];
   genres.forEach((genre, index) => {
     genresToCompare.forEach((genreToCompare, indexToCompare) => {
       if (genre.genre === genreToCompare.genre) {
@@ -129,10 +143,13 @@ function compareGenres(genres, genresToCompare) {
   return { score, matchingGenres };
 }
 
-function addUserGenre(userArtist, userGenres) {
+function addUserGenre(
+  userArtist: ReallySimplifiedArtist,
+  userGenres: { genre: string; score: number }[]
+) {
   const genres = userArtist.genres;
   if (genres)
-    genres.forEach((genre) => {
+    genres.forEach((genre: string) => {
       let filteredGenres = userGenres.filter(
         (userGenre) => userGenre.genre === genre
       );
@@ -140,5 +157,3 @@ function addUserGenre(userArtist, userGenres) {
       else filteredGenres[0].score++;
     });
 }
-
-module.exports = analyze;

@@ -1,20 +1,39 @@
-const analyse = require("./Analysis");
+import {
+  ReallySimplifiedTrack,
+  ReallySimplifiedArtist,
+  SocketUser,
+  UserAnalysis,
+} from "../../typings";
+import { Socket, Server } from "socket.io";
+import { analyze } from "./Analysis";
 
-const usersSockets = new Map();
+const usersSockets: Map<Socket, SocketUser> = new Map();
 
-let analyzedData = [];
+let analyzedData: UserAnalysis[];
 
 class Connection {
-  constructor(io, socket) {
+  socket: Socket;
+  io: Server;
+  socketUser: SocketUser;
+
+  constructor(io: Server, socket: Socket) {
     this.socket = socket;
     this.io = io;
-    this.id = socket.id;
-    this.spotify = { name: "unkown", id: "unkown", tracks: [], artists: [] };
+    this.socketUser = {
+      id: socket.id,
+      spotify: {
+        name: "unkown",
+        id: "unkown",
+        tracks: [],
+        artists: [],
+        genres: [],
+      },
+    };
 
-    usersSockets.set(socket, { id: this.id, spotify: this.spotify });
+    usersSockets.set(socket, this.socketUser);
 
     // On connection, send a user-connection event containing user info
-    this.sendNewUser(this.id, this.name);
+    this.sendNewUser(this.socketUser.id, this.socketUser.spotify.name);
 
     socket.on("getUsers", () => this.sendUsers());
     socket.on("setSpotify", (name) => this.setSpotify(name));
@@ -31,7 +50,7 @@ class Connection {
   }
 
   sendUsers() {
-    const users = [];
+    const users: { id: string; spotify: { name: string } }[] = [];
     usersSockets.forEach((user) => {
       if (user.spotify.name !== "unkown")
         users.push({ id: user.id, spotify: { name: user.spotify.name } });
@@ -40,19 +59,21 @@ class Connection {
   }
 
   // Used on new client connection
-  sendNewUser(id, name) {
+  sendNewUser(id: string, name: string) {
     this.io.sockets.emit("userConnection", { id, name });
   }
 
   // Used on new client disconnection
   sendFormerUser() {
-    this.io.sockets.emit("userDisconnection", {
-      id: this.id,
-      spotify: this.spotify,
-    });
+    this.io.sockets.emit("userDisconnection", this.socketUser);
   }
 
-  setSpotify(spotify) {
+  setSpotify(spotify: {
+    name: string;
+    id: string;
+    tracks: ReallySimplifiedTrack[];
+    artists: ReallySimplifiedArtist[];
+  }) {
     const user = usersSockets.get(this.socket);
     const newUser = {
       ...user,
@@ -62,7 +83,7 @@ class Connection {
         tracks: spotify.tracks,
         artists: spotify.artists,
       },
-    };
+    } as SocketUser;
     usersSockets.set(this.socket, newUser);
 
     this.io.sockets.emit("spotifyUpdate", {
@@ -74,7 +95,7 @@ class Connection {
   startAnalysis() {
     console.time("analysis");
     this.io.sockets.emit("loadingAnalysis");
-    analyzedData = analyse(usersSockets);
+    analyzedData = analyze(usersSockets);
     this.io.sockets.emit("analysisDone");
     console.timeEnd("analysis");
   }
@@ -91,7 +112,7 @@ class Connection {
   }
 }
 
-function socket(io) {
+function socket(io: Server) {
   io.on("connection", (socket) => {
     new Connection(io, socket);
   });
@@ -101,4 +122,4 @@ function getAnalyzedData() {
   return analyzedData;
 }
 
-module.exports = { socket, getAnalyzedData };
+export { socket, getAnalyzedData };
