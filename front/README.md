@@ -1,6 +1,6 @@
-# TypeScript + Sass starter using Vite
+# Music Match
 
-Just a simple starter using Vite.
+Front-end built with vanilla TypeScript.
 
 ## Setup
 
