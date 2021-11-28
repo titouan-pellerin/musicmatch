@@ -10,8 +10,6 @@ const { socket } = require("./src/Socket");
 const { getAnalyzedData } = require("./src/Socket");
 const { front_url } = require("./config/credentials");
 
-console.log(getAnalyzedData());
-
 app.use(
   cors({
     origin: front_url,
@@ -37,5 +35,5 @@ socket(io);
 
 const port = process.env.PORT || 8081;
 server.listen(port, () => {
-  console.log("listening on " + port);
+  console.log("Listening on " + port);
 });

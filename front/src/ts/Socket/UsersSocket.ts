@@ -1,4 +1,3 @@
-import { ForceGraph } from './../Three/ForceGraph';
 import { UserMesh } from './../Three/UserMesh';
 import {
   SimpleUser,
@@ -22,7 +21,6 @@ export class UsersSocket {
   startBtn: HTMLButtonElement | null = null;
   currentUser: string | null = null;
   usersAnalysis: UserAnalysis[] | null = null;
-  forceGraph: ForceGraph | null = null;
   constructor(serverUrl: string, scene: MainScene) {
     this.scene = scene;
     this.startBtn = document.querySelector('.start-btn');
@@ -66,8 +64,6 @@ export class UsersSocket {
   }
 
   async addUser(user: SimpleUser) {
-    console.log(user);
-
     if (!UserMesh.userMeshes.has(user.id)) {
       this.users.push(user);
       this.createUserMesh(user);
@@ -81,7 +77,6 @@ export class UsersSocket {
 
   startAnalysis() {
     this.socket.emit('startAnalysis');
-    // if (this.startBtn) this.startBtn.textContent = 'Loading...';
   }
 
   loadingAnalysis() {
@@ -97,9 +92,6 @@ export class UsersSocket {
     this.usersAnalysis = (await fetch(this.serverUrl + '/analyzed_data').then(
       (response) => response.json(),
     )) as UserAnalysis[];
-    // this.forceGraph = new ForceGraph(usersAnalysis);
-    // this.forceGraph.showRelations();
-    // this.showUserMatch();
   }
 
   createUserMesh(user: SimpleUser) {
@@ -135,7 +127,6 @@ export class UsersSocket {
         UserMesh.userMeshesGroupPosition = UserMesh.userMeshesGroup.position.clone();
       }
       const id = (e.target as HTMLHeadingElement).id;
-      // this.forceGraph?.d3Simulation?.stop();
       const currentUserAnalysis = this.usersAnalysis.filter(
         (userAnalysis) => userAnalysis.user.id === id,
       )[0];
