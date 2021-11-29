@@ -1,6 +1,6 @@
 import { SpotifyData } from './ts/Spotify/SpotifyData';
 import { SpotifyLogin } from './ts/Spotify/SpotifyLogin';
-import './style.scss';
+import './styles/style.scss';
 import { UsersSocket } from './ts/Socket/UsersSocket';
 import { MainScene } from './ts/Three/MainScene';
 
@@ -15,7 +15,6 @@ const BACK_URL = PROD
 let accessToken: string | null = null;
 const spotifyLogin = new SpotifyLogin(BACK_URL);
 let spotifyBtn: HTMLButtonElement | null = null;
-// let spotifyData: SpotifyData | null = null;
 
 /** Socket */
 let usersSocket: UsersSocket | null = null;

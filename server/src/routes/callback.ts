@@ -24,18 +24,7 @@ router.route("/").get(async (req, res) => {
       },
       headers: postHeaders,
     });
-    // let response = await axios({
-    //   url: "https://accounts.spotify.com/api/token",
-    //   method: "post",
-    //   params: {
-    //     client_id,
-    //     client_secret,
-    //     code,
-    //     redirect_uri,
-    //     grant_type: "authorization_code",
-    //   },
-    //   postHeaders,
-    // });
+
     if (response.status === 200) {
       const { access_token, expires_in, refresh_token } =
         response.data as SpotifyAuthorization;
