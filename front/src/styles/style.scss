@@ -79,10 +79,10 @@ body {
   min-height: 100vh;
   text-rendering: optimizeSpeed;
   font-size: 1.6rem;
-  // background: linear-gradient(#e1eaf7 60%, #aacbf8 40%);
-  background: linear-gradient(217deg, #e1eaf7, rgba(255, 0, 0, 0) 70.71%),
-    linear-gradient(127deg, #aacbf8, rgba(0, 255, 0, 0) 70.71%),
-    linear-gradient(336deg, #77e6f5, rgba(0, 0, 255, 0) 70.71%);
+  background: linear-gradient(#e1eaf7, #c0d9fc);
+  // background: linear-gradient(217deg, #e1eaf7, rgba(255, 0, 0, 0) 70.71%),
+  //   linear-gradient(127deg, #aacbf8, rgba(0, 255, 0, 0) 70.71%),
+  //   linear-gradient(336deg, #77e6f5, rgba(0, 0, 255, 0) 70.71%);
   font-family: 'Helvetica Neue LT Pro', sans-serif;
   overflow-x: hidden;
   overflow-y: overlay;
@@ -331,6 +331,10 @@ p {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+
+  h3 {
+    font-weight: 300;
+  }
 
   li {
     display: flex;

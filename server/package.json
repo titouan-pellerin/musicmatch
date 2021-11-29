@@ -8,7 +8,7 @@
     "build": "tsc",
     "dev": "nodemon ./src/server.ts"
   },
-  "author": "",
+  "author": "Titouan Pellerin",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.23.0",
