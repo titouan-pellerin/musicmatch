@@ -18,6 +18,7 @@ let roomIdFromUrl: string | null = null;
 let createRoomBtn: HTMLLinkElement | null = null;
 let joinRoomBtn: HTMLButtonElement | null = null;
 let roomInput: HTMLInputElement | null = null;
+let copyLink: HTMLLinkElement | null = null;
 /** Spotify */
 let accessToken: string | null = null;
 const spotifyLogin = new SpotifyLogin(BACK_URL);
@@ -59,9 +60,14 @@ async function loginSpotify(e: Event) {
         createRoomBtn = document.querySelector('.create-room-btn');
         joinRoomBtn = document.querySelector('.join-room-btn');
         roomInput = document.querySelector('.room-input');
-        if (createRoomBtn && joinRoomBtn) {
+        if (createRoomBtn && joinRoomBtn && roomInput) {
           createRoomBtn.addEventListener('click', createRoom);
           joinRoomBtn.addEventListener('click', joinRoom);
+          roomInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+              joinRoom();
+            }
+          });
         }
       }
     }
@@ -92,7 +98,15 @@ async function joinRoom(e: Event | null = null) {
 
     const userData = await spotifyData.getData();
     usersSocket.setSpotify(userData);
+    window.history.pushState({ path: room.roomUrl }, '', room.roomUrl);
+    document.querySelector('.waiting-container')?.classList.remove('hidden');
 
-    document.querySelector('.start-btn-container')?.classList.remove('hidden');
+    copyLink = document.querySelector('.copy-link');
+    if (copyLink) copyLink.addEventListener('click', copyLinkEvent);
   }
+}
+
+function copyLinkEvent(e: Event) {
+  e.preventDefault();
+  if (room) navigator.clipboard.writeText(room.roomUrl);
 }

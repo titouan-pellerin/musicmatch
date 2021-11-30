@@ -76,7 +76,7 @@ select {
 body {
   width: 100%;
   padding: 0;
-  height: 100vh;
+  // height: 100vh;
   text-rendering: optimizeSpeed;
   font-size: 1.6rem;
   font-family: 'Helvetica Neue LT Pro', sans-serif;
@@ -219,13 +219,19 @@ p {
   opacity: 0;
   pointer-events: none;
 }
-.start-btn-container.hidden {
-  opacity: 0;
+.start-btn-container,
+.hint-container,
+.back-btn-container,
+.waiting-container {
+  &.hidden {
+    opacity: 0;
+  }
 }
 
 .start-btn-container,
 .hint-container,
-.back-btn-container {
+.back-btn-container,
+.waiting-container {
   position: absolute;
   display: flex;
   align-items: center;
@@ -236,13 +242,39 @@ p {
 }
 
 .start-btn-container,
-.hint-container {
+.hint-container,
+.waiting-container {
   width: 100%;
   bottom: 30px;
 }
 
+.waiting-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  .copy-link {
+    margin-top: 5px;
+    color: $dark-grey;
+    opacity: 1;
+    transition: opacity ease 0.35s;
+
+    &:hover {
+      opacity: 0.7;
+    }
+    &:active {
+      opacity: 0.3;
+    }
+  }
+}
+
 .back-btn-container {
   top: 30px;
+}
+
+.back-btn {
+  background-color: #fff;
 }
 
 //  {

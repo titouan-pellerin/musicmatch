@@ -62,7 +62,10 @@ export class UsersSocket {
 
   getUsers(users: SimpleUser[]) {
     users.forEach(async (user) => {
-      if (!UserMesh.userMeshes.has(user.id)) this.createUserMesh(user);
+      if (!UserMesh.userMeshes.has(user.id)) {
+        this.users.push(user);
+        this.createUserMesh(user);
+      }
     });
   }
 
@@ -99,6 +102,13 @@ export class UsersSocket {
   }
 
   createUserMesh(user: SimpleUser) {
+    console.log(this.users.length);
+
+    if (this.users.length > 1) {
+      document.querySelector('.waiting-container')?.classList.add('hidden');
+      document.querySelector('.start-btn-container')?.classList.remove('hidden');
+    }
+
     let currentMesh: UserMesh;
     if (UserMesh.userMeshes.size === 0) {
       currentMesh = new UserMesh(user.id, user.spotify.name);
