@@ -1,4 +1,4 @@
-# MusicMatch
+# Music Mate
 
 Find your music match according to your Spotify listenings.
 
