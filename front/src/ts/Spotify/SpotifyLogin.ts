@@ -28,7 +28,7 @@ export class SpotifyLogin {
       );
 
       window.addEventListener('message', (e) => {
-        if (e.origin === this.exchangeHost) {
+        if (e && e.origin === this.exchangeHost) {
           const hash = JSON.parse(e.data);
           if (hash.type === 'access_token') {
             this.accessToken = hash.access_token;

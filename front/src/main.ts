@@ -1,3 +1,4 @@
+import { Room } from './ts/Socket/Room';
 import { SpotifyData } from './ts/Spotify/SpotifyData';
 import { SpotifyLogin } from './ts/Spotify/SpotifyLogin';
 import './styles/style.scss';
@@ -11,6 +12,12 @@ const BACK_URL = PROD
     : 'http://localhost:8081'
   : 'http://localhost:8081';
 
+/** Rooms */
+let room: Room | null = null;
+let roomIdFromUrl: string | null = null;
+let createRoomBtn: HTMLLinkElement | null = null;
+let joinRoomBtn: HTMLButtonElement | null = null;
+let roomInput: HTMLInputElement | null = null;
 /** Spotify */
 let accessToken: string | null = null;
 const spotifyLogin = new SpotifyLogin(BACK_URL);
@@ -30,26 +37,62 @@ function init() {
   if (canvas) {
     mainScene = new MainScene(canvas);
   }
+
   spotifyBtn = document.querySelector('.spotify-btn');
   if (spotifyBtn) spotifyBtn.addEventListener('click', loginSpotify);
 }
 
-async function loginSpotify() {
+async function loginSpotify(e: Event) {
+  e.preventDefault();
   try {
     accessToken = await spotifyLogin.login();
     document.querySelector('.start-screen')?.classList.add('hidden');
 
     if (mainScene) {
-      usersSocket = new UsersSocket(BACK_URL, mainScene);
-      const spotifyData = new SpotifyData(accessToken);
+      if (window.location.search && window.location.search.split('=')[1]) {
+        roomIdFromUrl = window.location.search.split('=')[1];
+        room = new Room(roomIdFromUrl);
+        joinRoom();
+      } else {
+        document.querySelector('.room-selection')?.classList.remove('hidden');
 
-      const userData = await spotifyData.getData();
-      usersSocket.setSpotify(userData);
-
-      document.querySelector('.start-btn-container')?.classList.remove('hidden');
+        createRoomBtn = document.querySelector('.create-room-btn');
+        joinRoomBtn = document.querySelector('.join-room-btn');
+        roomInput = document.querySelector('.room-input');
+        if (createRoomBtn && joinRoomBtn) {
+          createRoomBtn.addEventListener('click', createRoom);
+          joinRoomBtn.addEventListener('click', joinRoom);
+        }
+      }
     }
   } catch (err) {
     console.error(err);
     // window.location.reload();
+  }
+}
+
+function createRoom(e: Event) {
+  e.preventDefault();
+  room = new Room();
+  joinRoom();
+}
+
+async function joinRoom(e: Event | null = null) {
+  if (e) e.preventDefault();
+
+  if (!room && roomInput && roomInput.value && roomInput.value.trim().length > 0)
+    room = new Room(roomInput.value);
+  if (room && mainScene && accessToken) {
+    console.log(room.roomUrl);
+
+    document.querySelector('.room-selection')?.classList.add('hidden');
+
+    usersSocket = new UsersSocket(BACK_URL, room.id, mainScene);
+    const spotifyData = new SpotifyData(accessToken);
+
+    const userData = await spotifyData.getData();
+    usersSocket.setSpotify(userData);
+
+    document.querySelector('.start-btn-container')?.classList.remove('hidden');
   }
 }

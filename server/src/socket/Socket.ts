@@ -21,6 +21,7 @@ class Connection {
     this.io = io;
     this.socketUser = {
       id: socket.id,
+      roomId: "",
       spotify: {
         name: "unkown",
         id: "unkown",
@@ -29,11 +30,15 @@ class Connection {
         genres: [],
       },
     };
-
     usersSockets.set(socket, this.socketUser);
 
     // On connection, send a user-connection event containing user info
     this.sendNewUser(this.socketUser.id, this.socketUser.spotify.name);
+
+    socket.on("room", (roomId) => {
+      this.socketUser.roomId = roomId;
+      this.socket.join(roomId);
+    });
 
     socket.on("getUsers", () => this.sendUsers());
     socket.on("setSpotify", (name) => this.setSpotify(name));
@@ -50,22 +55,31 @@ class Connection {
   }
 
   sendUsers() {
+    const currentRoomUsers = this.io
+      .of("/")
+      .adapter.rooms.get(this.socketUser.roomId) as Set<string>;
     const users: { id: string; spotify: { name: string } }[] = [];
+
     usersSockets.forEach((user) => {
-      if (user.spotify.name !== "unkown")
+      if (user.spotify.name !== "unkown" && currentRoomUsers.has(user.id))
         users.push({ id: user.id, spotify: { name: user.spotify.name } });
     });
-    this.socket.emit("users", users);
+
+    this.io.sockets.in(this.socketUser.roomId).emit("users", users);
   }
 
   // Used on new client connection
   sendNewUser(id: string, name: string) {
-    this.io.sockets.emit("userConnection", { id, name });
+    this.io.sockets
+      .in(this.socketUser.roomId)
+      .emit("userConnection", { id, name });
   }
 
   // Used on new client disconnection
   sendFormerUser() {
-    this.io.sockets.emit("userDisconnection", this.socketUser);
+    this.io.sockets
+      .in(this.socketUser.roomId)
+      .emit("userDisconnection", this.socketUser);
   }
 
   setSpotify(spotify: {
@@ -86,7 +100,7 @@ class Connection {
     } as SocketUser;
     usersSockets.set(this.socket, newUser);
 
-    this.io.sockets.emit("spotifyUpdate", {
+    this.io.sockets.in(this.socketUser.roomId).emit("spotifyUpdate", {
       id: newUser.id,
       spotify: { name: newUser.spotify.name },
     });
@@ -94,9 +108,9 @@ class Connection {
 
   startAnalysis() {
     console.time("analysis");
-    this.io.sockets.emit("loadingAnalysis");
-    analyzedData = analyze(usersSockets);
-    this.io.sockets.emit("analysisDone");
+    this.io.sockets.in(this.socketUser.roomId).emit("loadingAnalysis");
+    analyzedData = analyze(usersSockets, this.socketUser.roomId);
+    this.io.sockets.in(this.socketUser.roomId).emit("analysisDone");
     console.timeEnd("analysis");
   }
 

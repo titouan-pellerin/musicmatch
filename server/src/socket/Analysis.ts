@@ -7,75 +7,78 @@ import {
   ReallySimplifiedArtist,
 } from "../../typings";
 
-export function analyze(users: Map<Socket, SocketUser>) {
+export function analyze(users: Map<Socket, SocketUser>, roomId: string) {
   const analyzedUsers: UserAnalysis[] = [];
   console.time("first loop");
+
   users.forEach((user, key) => {
-    let usersWithScores: UserWithScore[] = [];
+    if (user.roomId === roomId) {
+      let usersWithScores: UserWithScore[] = [];
 
-    const userTracks = user.spotify.tracks;
-    const userArtists = user.spotify.artists;
-    const userGenres: { genre: string; score: number }[] = [];
+      const userTracks = user.spotify.tracks;
+      const userArtists = user.spotify.artists;
+      const userGenres: { genre: string; score: number }[] = [];
 
-    const usersToCompare = new Map(users);
-    usersToCompare.delete(key);
+      const usersToCompare = new Map(users);
+      usersToCompare.delete(key);
 
-    console.time("second loop");
-    usersToCompare.forEach((userToCompare) => {
-      console.time("inner loop");
-      const userTracksToCompare = userToCompare.spotify.tracks;
-      const userArtistsToCompare = userToCompare.spotify.artists;
-      const userGenresToCompare: { genre: string; score: number }[] = [];
+      console.time("second loop");
+      usersToCompare.forEach((userToCompare) => {
+        console.time("inner loop");
+        const userTracksToCompare = userToCompare.spotify.tracks;
+        const userArtistsToCompare = userToCompare.spotify.artists;
+        const userGenresToCompare: { genre: string; score: number }[] = [];
 
-      console.time("artists");
-      const artistsScore = compareArtists(
-        userArtists,
-        userArtistsToCompare,
-        userGenres,
-        userGenresToCompare
-      );
-      console.timeEnd("artists");
+        console.time("artists");
+        const artistsScore = compareArtists(
+          userArtists,
+          userArtistsToCompare,
+          userGenres,
+          userGenresToCompare
+        );
+        console.timeEnd("artists");
 
-      console.time("tracks");
-      const tracksScore = compareTracks(userTracks, userTracksToCompare);
-      console.timeEnd("tracks");
+        console.time("tracks");
+        const tracksScore = compareTracks(userTracks, userTracksToCompare);
+        console.timeEnd("tracks");
 
-      console.time("genres");
-      userGenresToCompare.sort((a, b) => b.score - a.score).splice(10);
-      userGenres.sort((a, b) => b.score - a.score).splice(10);
+        console.time("genres");
+        userGenresToCompare.sort((a, b) => b.score - a.score).splice(10);
+        userGenres.sort((a, b) => b.score - a.score).splice(10);
 
-      const genresScore = compareGenres(userGenres, userGenresToCompare);
-      console.timeEnd("genres");
+        const genresScore = compareGenres(userGenres, userGenresToCompare);
+        console.timeEnd("genres");
 
-      usersWithScores.push({
-        user: {
-          id: userToCompare.id,
-          spotify: {
-            name: userToCompare.spotify.name,
-            id: userToCompare.spotify.id,
+        usersWithScores.push({
+          user: {
+            id: userToCompare.id,
+            spotify: {
+              name: userToCompare.spotify.name,
+              id: userToCompare.spotify.id,
+            },
           },
-        },
-        scores: { artistsScore, tracksScore, genresScore },
+          scores: { artistsScore, tracksScore, genresScore },
+        });
+        console.timeEnd("inner loop");
       });
-      console.timeEnd("inner loop");
-    });
 
-    usersWithScores.sort(
-      (a, b) =>
-        b.scores.artistsScore.score +
-        b.scores.tracksScore.score +
-        b.scores.genresScore.score -
-        (a.scores.artistsScore.score +
-          a.scores.tracksScore.score +
-          a.scores.genresScore.score)
-    );
-    user.spotify.genres = userGenres;
+      usersWithScores.sort(
+        (a, b) =>
+          b.scores.artistsScore.score +
+          b.scores.tracksScore.score +
+          b.scores.genresScore.score -
+          (a.scores.artistsScore.score +
+            a.scores.tracksScore.score +
+            a.scores.genresScore.score)
+      );
+      user.spotify.genres = userGenres;
 
-    analyzedUsers.push({
-      user,
-      usersWithScores,
-    });
-    console.timeEnd("second loop");
+      analyzedUsers.push({
+        user,
+        usersWithScores,
+      });
+      console.timeEnd("second loop");
+    }
   });
   console.timeEnd("first loop");
 

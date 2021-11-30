@@ -24,6 +24,7 @@ export interface ReallySimplifiedTrack {
 
 export interface SocketUser {
   id: string;
+  roomId: string;
   spotify: {
     name: string;
     id: string;

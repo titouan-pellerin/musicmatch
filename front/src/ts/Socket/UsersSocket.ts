@@ -15,14 +15,16 @@ import { GenresListEl } from '../Spotify/Elements/GenresListEl';
 
 export class UsersSocket {
   socket: Socket;
+  roomId: string;
   serverUrl: String;
   users: SimpleUser[] = [];
   scene: MainScene;
   startBtn: HTMLButtonElement | null = null;
   currentUser: string | null = null;
   usersAnalysis: UserAnalysis[] | null = null;
-  constructor(serverUrl: string, scene: MainScene) {
+  constructor(serverUrl: string, roomId: string, scene: MainScene) {
     this.scene = scene;
+    this.roomId = roomId;
     this.startBtn = document.querySelector('.start-btn');
     this.startBtn?.addEventListener('click', this.startAnalysis.bind(this));
 
@@ -35,6 +37,7 @@ export class UsersSocket {
 
     this.socket.on('disconnect', () => {});
 
+    this.socket.emit('room', roomId);
     this.socket.emit('getUsers');
 
     this.socket.on('users', this.getUsers.bind(this));
@@ -75,7 +78,8 @@ export class UsersSocket {
     UserMesh.remove(user.id);
   }
 
-  startAnalysis() {
+  startAnalysis(e: Event) {
+    e.preventDefault();
     this.socket.emit('startAnalysis');
   }
 
@@ -116,6 +120,7 @@ export class UsersSocket {
   }
 
   showUserMatch(e: Event) {
+    e.preventDefault();
     if (this.usersAnalysis) {
       document
         .querySelector('.back-btn')
@@ -252,7 +257,8 @@ export class UsersSocket {
       });
     }
   }
-  previous() {
+  previous(e: Event) {
+    e.preventDefault();
     document.querySelector('.hint-container')?.classList.remove('hidden');
     document.querySelector('.canvas-container')?.classList.remove('reduced');
     document.querySelector('.back-btn-container')?.classList.add('hidden');

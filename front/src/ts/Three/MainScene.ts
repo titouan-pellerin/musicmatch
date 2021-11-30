@@ -49,6 +49,7 @@ export class MainScene extends Scene {
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.05;
     this.controls.enableRotate = false;
+    this.controls.enableZoom = false;
     this.controls.mouseButtons = {
       LEFT: MOUSE.PAN,
       MIDDLE: MOUSE.DOLLY,

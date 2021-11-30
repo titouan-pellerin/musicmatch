@@ -76,27 +76,54 @@ select {
 body {
   width: 100%;
   padding: 0;
-  min-height: 100vh;
+  height: 100vh;
   text-rendering: optimizeSpeed;
   font-size: 1.6rem;
-  background: linear-gradient(#e1eaf7, #c0d9fc);
-  // background: linear-gradient(217deg, #e1eaf7, rgba(255, 0, 0, 0) 70.71%),
-  //   linear-gradient(127deg, #aacbf8, rgba(0, 255, 0, 0) 70.71%),
-  //   linear-gradient(336deg, #77e6f5, rgba(0, 0, 255, 0) 70.71%);
   font-family: 'Helvetica Neue LT Pro', sans-serif;
   overflow-x: hidden;
   overflow-y: overlay;
-}
-
-p {
-  font-weight: 300;
+  color: $black;
+  background: linear-gradient(#e1eaf7, #c0d9fc);
+  background-attachment: fixed;
 }
 
 .no-overflow-y {
   overflow-y: hidden;
 }
 
-.start-screen {
+.webgl:active {
+  cursor: grab;
+}
+
+p {
+  font-weight: 300;
+}
+
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: $accent-color;
+  border: transparent solid 1px;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 1.6rem;
+  color: $dark-grey;
+  position: relative;
+  transition: border 0.35s ease, transform cubic-bezier(0.65, 0, 0.35, 1) 0.15s;
+  outline: none;
+  &:hover,
+  &:focus {
+    border: $dark-grey solid 1px;
+  }
+
+  span {
+    margin-top: 5px;
+    font-weight: 300;
+  }
+}
+
+.layer {
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -107,13 +134,16 @@ p {
   transition: opacity 0.3s;
   opacity: 1;
   z-index: 1;
+  text-align: center;
+}
 
+.start-screen {
   h1 {
     font-family: 'Gyahegi', serif;
-    margin-bottom: 50px;
     text-transform: uppercase;
     text-align: center;
-    margin-bottom: 10px;
+    font-size: 3.5rem;
+    margin-bottom: 12px;
   }
 
   p {
@@ -121,56 +151,70 @@ p {
   }
 }
 
-.spotify-btn {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
+.room-selection {
+  p {
+    margin: 15px 0;
+  }
+}
 
+.create-room-btn {
+  margin-bottom: 5px;
+}
+
+.join-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.join-input-container {
+  input {
+    padding: 10px 5px 5px 5px;
+    font-weight: 300;
+    text-align: center;
+    background-color: transparent;
+    outline: none;
+    margin-right: 5px;
+    border: $dark-grey solid 1px;
+    border-radius: 7px;
+    transition: background-color 0.35s ease;
+
+    &::placeholder {
+      color: $dark-grey;
+    }
+
+    &:focus,
+    &:hover {
+      background-color: $accent-color;
+    }
+  }
+}
+
+.join-room-btn {
+  font-size: 1.4rem;
+  height: 100%;
+  padding: 0 10px;
+}
+
+.spotify-btn-container {
+  margin-top: 20px;
+}
+
+.spotify-btn {
   .spotify-span {
-    font-weight: 400;
-    margin-top: 4px;
+    font-weight: 300;
   }
 
   svg {
-    width: 100px;
+    height: 2.5rem;
     margin-left: 5px;
   }
 
   path {
-    fill: #000;
+    fill: $dark-grey;
   }
 }
 
-.btn {
-  border: none;
-  border-radius: 2px;
-  padding-bottom: 7px;
-  font-size: 1.5rem;
-  color: #000;
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    width: 90%;
-    height: 1px;
-    bottom: 0;
-    background-color: $spotify-logo;
-    transform: scaleX(0) translate(-50%, 0);
-    transform-origin: 50%;
-    transition: transform cubic-bezier(0.65, 0, 0.35, 1) 0.65s;
-  }
-
-  &:hover::after {
-    transform-origin: -50%;
-    transform: scaleX(1) translate(-50%, 0);
-  }
-
-  span {
-    font-weight: 300;
-  }
-}
 .hidden {
   opacity: 0;
   pointer-events: none;
@@ -179,10 +223,10 @@ p {
   opacity: 0;
 }
 
-.start-btn-container {
-  width: 100%;
+.start-btn-container,
+.hint-container,
+.back-btn-container {
   position: absolute;
-  bottom: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,21 +235,26 @@ p {
   opacity: 1;
 }
 
-.start-btn,
-.back-btn {
-  text-transform: uppercase;
-}
-
+.start-btn-container,
 .hint-container {
   width: 100%;
-  position: absolute;
   bottom: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.7;
-  transition: opacity 0.3s;
 }
+
+.back-btn-container {
+  top: 30px;
+}
+
+//  {
+//   width: 100%;
+//   position: absolute;
+//   bottom: 30px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   opacity: 0.7;
+//   transition: opacity 0.3s;
+// }
 
 .hint-container.hidden {
   opacity: 0;
