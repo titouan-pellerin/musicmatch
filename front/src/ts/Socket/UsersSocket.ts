@@ -217,6 +217,7 @@ export class UsersSocket {
       });
 
       const bestMatchMesh = UserMesh.userMeshes.get(bestMatch.user.id);
+
       document.getElementById(bestMatch.user.id)?.classList.remove('hidden');
 
       if (bestMatchMesh) {

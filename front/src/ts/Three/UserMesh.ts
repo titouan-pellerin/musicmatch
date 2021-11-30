@@ -115,8 +115,8 @@ export class UserMesh extends Mesh {
 
     const scaleFactor = UserMesh.scene.camera.zoom / 125;
     this.nameEl.style.transform = `translate(-50%, -50%) translate(${x}px,calc(${y}px + ${
-      12 * scaleFactor
-    }rem)) scale(${scaleFactor})`;
+      14 * scaleFactor
+    }vh)) scale(${scaleFactor})`;
   }
 
   static update() {
@@ -134,8 +134,8 @@ export class UserMesh extends Mesh {
       const scaleFactor = UserMesh.scene.camera.zoom / 100;
 
       userMesh.nameEl.style.transform = `translate(-50%, -50%) translate(${x}px,calc(${y}px + ${
-        12 * scaleFactor
-      }rem)) scale(${scaleFactor})`;
+        14 * scaleFactor
+      }vh)) scale(${scaleFactor})`;
     });
   }
 
