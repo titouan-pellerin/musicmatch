@@ -88,7 +88,7 @@ export class UsersSocket {
 
   loadingAnalysis() {
     if (this.startBtn) {
-      this.startBtn.textContent = 'Loading...';
+      this.startBtn.children[0].textContent = 'Loading...';
       this.startBtn.removeEventListener('click', this.startAnalysis);
     }
   }

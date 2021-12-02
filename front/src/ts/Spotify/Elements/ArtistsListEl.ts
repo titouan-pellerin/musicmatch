@@ -1,3 +1,4 @@
+import { PlayOnSpotify } from './PlayOnSpotify';
 import { ReallySimplifiedArtist } from './../../../../typings/index';
 export class ArtistsListEl {
   artistsEl: HTMLUListElement;
@@ -20,9 +21,15 @@ export class ArtistsListEl {
         nameEl.textContent = artist.name;
         const imgEl = document.createElement('img');
         imgEl.src = artist.image;
-        artistEl.appendChild(imgEl);
-        artistEl.appendChild(nameEl);
+
+        const infoEl = document.createElement('div');
+        infoEl.classList.add('artist-info');
+
+        infoEl.appendChild(nameEl);
+        infoEl.appendChild(new PlayOnSpotify(artist.id, true).linkEl);
         artistEl.id = artist.id;
+        artistEl.appendChild(imgEl);
+        artistEl.appendChild(infoEl);
         this.artistsEl.appendChild(artistEl);
       });
   }

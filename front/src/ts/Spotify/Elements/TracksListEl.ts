@@ -1,4 +1,5 @@
 import { ReallySimplifiedTrack } from './../../../../typings/index';
+import { PlayOnSpotify } from './PlayOnSpotify';
 export class TracksListEl {
   tracksEl: HTMLUListElement;
   constructor(tracks: ReallySimplifiedTrack[]) {
@@ -28,6 +29,7 @@ export class TracksListEl {
         infoEl.classList.add('track-info');
         infoEl.appendChild(nameEl);
         infoEl.appendChild(artistsEl);
+        infoEl.appendChild(new PlayOnSpotify(track.id, false).linkEl);
 
         const imgEl = document.createElement('img');
         imgEl.src = track.album.image;
