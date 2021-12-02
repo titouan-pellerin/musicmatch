@@ -9,7 +9,7 @@ export class ArtistsListEl {
     if (artists.length === 0) {
       const artistEl = document.createElement('li');
       const nameEl = document.createElement('h3');
-      nameEl.classList.add('text-only');
+      artistEl.classList.add('text-only');
 
       nameEl.textContent = 'Too bad, no artist in common';
       artistEl.appendChild(nameEl);

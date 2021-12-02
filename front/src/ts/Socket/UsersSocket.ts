@@ -73,6 +73,18 @@ export class UsersSocket {
     if (!UserMesh.userMeshes.has(user.id)) {
       this.users.push(user);
       this.createUserMesh(user);
+
+      if (this.usersAnalysis) {
+        if (UserMesh.userMeshesGroupPositions) this.previous();
+        if (this.startBtn) {
+          this.startBtn.children[0].textContent = 'Re-launch the analysis';
+          this.startBtn.addEventListener('click', this.startAnalysis.bind(this));
+
+          document.querySelector('.start-btn-container')?.classList.remove('hidden');
+          document.querySelector('.hint-container')?.classList.add('hidden');
+          this.usersAnalysis = null;
+        }
+      }
     }
   }
 
@@ -127,6 +139,8 @@ export class UsersSocket {
       ease: 'power3.out',
     });
     UserMesh.userMeshesGroup.add(currentMesh);
+    UserMesh.userMeshesGroupPositions.push(currentMesh.position.clone());
+    UserMesh.userMeshesGroupPosition = UserMesh.userMeshesGroup.position.clone();
   }
 
   showUserMatch(e: Event) {
@@ -135,12 +149,7 @@ export class UsersSocket {
       document
         .querySelector('.back-btn')
         ?.addEventListener('click', this.previous.bind(this));
-      if (!UserMesh.userMeshesGroupPositions && !UserMesh.userMeshesGroupPosition) {
-        UserMesh.userMeshesGroupPositions = Array.from(
-          UserMesh.userMeshesGroup.children.map((child) => child.position.clone()),
-        );
-        UserMesh.userMeshesGroupPosition = UserMesh.userMeshesGroup.position.clone();
-      }
+
       const id = (e.target as HTMLHeadingElement).id;
       const currentUserAnalysis = this.usersAnalysis.filter(
         (userAnalysis) => userAnalysis.user.id === id,
@@ -268,8 +277,8 @@ export class UsersSocket {
       });
     }
   }
-  previous(e: Event) {
-    e.preventDefault();
+  previous(e: Event | null = null) {
+    if (e) e.preventDefault();
     document.querySelector('.hint-container')?.classList.remove('hidden');
     document.querySelector('.canvas-container')?.classList.remove('reduced');
     document.querySelector('.back-btn-container')?.classList.add('hidden');

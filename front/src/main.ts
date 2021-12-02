@@ -4,7 +4,6 @@ import { SpotifyLogin } from './ts/Spotify/SpotifyLogin';
 import './styles/style.scss';
 import { UsersSocket } from './ts/Socket/UsersSocket';
 import { MainScene } from './ts/Three/MainScene';
-
 const PROD = import.meta.env.PROD;
 const BACK_URL = PROD
   ? import.meta.env.VITE_BACK_URL
@@ -108,5 +107,11 @@ async function joinRoom(e: Event | null = null) {
 
 function copyLinkEvent(e: Event) {
   e.preventDefault();
-  if (room) navigator.clipboard.writeText(room.roomUrl);
+  if (room) {
+    navigator.clipboard.writeText(room.roomUrl);
+    copyLink?.classList.add('clicked');
+    setTimeout(() => {
+      copyLink?.classList.remove('clicked');
+    }, 100);
+  }
 }

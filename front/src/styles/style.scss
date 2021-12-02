@@ -110,7 +110,8 @@ p {
   font-size: 1.6rem;
   color: $dark-grey;
   position: relative;
-  transition: border 0.35s ease, transform cubic-bezier(0.65, 0, 0.35, 1) 0.15s;
+  transition: border 0.35s ease, transform cubic-bezier(0.65, 0, 0.35, 1) 0.1s,
+    opacity ease 0.1s;
   outline: none;
   &:hover,
   &:focus {
@@ -139,12 +140,14 @@ p {
 }
 
 .start-screen {
+  padding: 15px;
   h1 {
     font-family: 'Gyahegi', serif;
     text-transform: uppercase;
     text-align: center;
     font-size: 3.5rem;
     margin-bottom: 12px;
+    line-height: 1.8em;
   }
 
   p {
@@ -153,6 +156,7 @@ p {
 }
 
 .room-selection {
+  padding: 15px;
   p {
     margin: 15px 0;
   }
@@ -166,6 +170,7 @@ p {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .join-input-container {
@@ -259,15 +264,19 @@ p {
 
   .copy-link {
     margin-top: 5px;
-    color: $dark-grey;
+    color: $black;
     opacity: 1;
-    transition: opacity ease 0.35s;
+    font-weight: 400;
+    transform: scale(1);
 
-    &:hover {
-      opacity: 0.7;
+    svg {
+      width: 15px;
+      margin-right: 10px;
     }
-    &:active {
-      opacity: 0.3;
+
+    &.clicked {
+      transform: scale(0.95);
+      opacity: 0.8;
     }
   }
 }
@@ -433,11 +442,19 @@ p {
 
   .text-only {
     padding: 15px;
+    border-radius: 10px;
     text-align: center;
-    width: 100%;
-    &.genre {
+    height: auto;
+
+    .track-info,
+    .artist-info {
+      padding: 0;
+    }
+
+    .genre {
       text-transform: capitalize;
       font-size: 1.6rem;
+      width: 100%;
     }
   }
 
@@ -451,10 +468,6 @@ p {
     height: 100%;
     object-fit: cover;
   }
-}
-
-.genres-list li {
-  border-radius: 10px;
 }
 
 .track-info,

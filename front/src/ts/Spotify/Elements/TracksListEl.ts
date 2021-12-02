@@ -8,13 +8,13 @@ export class TracksListEl {
     if (tracks.length === 0) {
       const nameEl = document.createElement('h3');
       nameEl.textContent = 'Too bad, no track in common';
-      nameEl.classList.add('text-only');
 
       const infoEl = document.createElement('div');
-      infoEl.classList.add('track-info');
       infoEl.appendChild(nameEl);
+      infoEl.classList.add('track-info');
 
       const trackEl = document.createElement('li');
+      trackEl.classList.add('text-only');
       trackEl.appendChild(infoEl);
       this.tracksEl.appendChild(trackEl);
     } else

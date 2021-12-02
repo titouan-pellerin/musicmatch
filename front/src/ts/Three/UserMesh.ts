@@ -21,8 +21,8 @@ export class UserMesh extends Mesh {
   static canvas: HTMLCanvasElement;
   static textureloader = new TextureLoader();
   static matcapTexture = UserMesh.textureloader.load('/textures/metal.jpg');
-  static userMeshesGroupPositions: Vector3[];
-  static userMeshesGroupPosition: Vector3;
+  static userMeshesGroupPositions: Vector3[] = [];
+  static userMeshesGroupPosition = new Vector3(0, 0, 0);
   static materialParameters: {
     roughness: 0;
     metalness: 1;
