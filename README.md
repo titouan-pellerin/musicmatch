@@ -17,7 +17,10 @@ cd ./server
 npm i
 
 # Run the local server at localhost:8081
-npm run start
+npm run dev
+
+# Build for production in the dist/ directory
+npm run build
 ```
 
 ### Front

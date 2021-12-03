@@ -247,13 +247,13 @@ export class UsersSocket {
           z: 0,
           ease: 'power3.out',
         });
-        gsap.to(bestMatchMesh.rotation, {
-          duration: 0.75,
-          x: Math.PI,
-          y: 0,
-          z: 0,
-          ease: 'power3.out',
-        });
+        // gsap.to(bestMatchMesh.rotation, {
+        //   duration: 0.75,
+        //   x: Math.PI,
+        //   y: 0,
+        //   z: 0,
+        //   ease: 'power3.out',
+        // });
         gsap.to(bestMatchMesh.scale, {
           duration: 0.75,
           x: 1,
@@ -262,28 +262,30 @@ export class UsersSocket {
           ease: 'power3.out',
         });
       }
-
+      const meshesToHide: UserMesh[] = [];
       this.usersAnalysis.forEach((userAnalysis) => {
         if (userAnalysis.user.id !== bestMatch.user.id && userAnalysis.user.id !== id) {
           document.getElementById(userAnalysis.user.id)?.classList.add('hidden');
-
-          const meshToHide = UserMesh.userMeshes.get(userAnalysis.user.id) as UserMesh;
-          gsap.to(meshToHide.position, {
-            duration: 0.75,
-            x: 0,
-            y: 0,
-            stagger: 0.3,
-            ease: 'power3.out',
-          });
-          gsap.to(meshToHide.scale, {
-            duration: 0.75,
-            x: 0.2,
-            y: 0.2,
-            z: 0.2,
-            stagger: 0.3,
-            ease: 'power3.out',
-          });
+          meshesToHide.push(UserMesh.userMeshes.get(userAnalysis.user.id) as UserMesh);
         }
+      });
+      const meshesToHidePositions = meshesToHide.map((meshToHide) => meshToHide.position);
+      const meshesToHideScales = meshesToHide.map((meshToHide) => meshToHide.scale);
+      gsap.to(meshesToHidePositions, {
+        duration: 0.75,
+        x: 0,
+        y: 0,
+        z: 0,
+        stagger: 0.03,
+        ease: 'power3.out',
+      });
+      gsap.to(meshesToHideScales, {
+        duration: 0.75,
+        x: 0.2,
+        y: 0.2,
+        z: 0.2,
+        stagger: 0.03,
+        ease: 'power3.out',
       });
       document.querySelector('.canvas-container')?.classList.add('reduced');
       document.querySelector('.back-btn-container')?.classList.remove('hidden');
@@ -316,7 +318,6 @@ export class UsersSocket {
       });
       gsap.to(child.scale, {
         duration: 0.75,
-        stagger: 0.3,
         ease: 'power3.out',
         x: 1,
         y: 1,

@@ -156,6 +156,10 @@ export class UserMesh extends Mesh {
     }vh)) scale(${scaleFactor})`;
   }
 
+  setPosition(x: number, y: number, z: number) {
+    this.position.set(x, y, z);
+  }
+
   static update() {
     UserMesh.userMeshes.forEach((userMesh) => {
       userMesh.uniforms.uTime.value = raf.elapsedTime;
