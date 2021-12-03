@@ -1,14 +1,7 @@
 import { UserMesh } from './UserMesh';
 import raf from '../utils/Raf';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import {
-  AmbientLight,
-  MOUSE,
-  OrthographicCamera,
-  Scene,
-  TOUCH,
-  WebGLRenderer,
-} from 'three';
+import { MOUSE, OrthographicCamera, Scene, TOUCH, WebGLRenderer } from 'three';
 
 export class MainScene extends Scene {
   canvas: HTMLCanvasElement;
@@ -30,7 +23,6 @@ export class MainScene extends Scene {
     UserMesh.scene = this;
     UserMesh.canvas = canvas;
     this.add(UserMesh.userMeshesGroup);
-
     const aspect = this.sizes.width / this.sizes.height;
     this.camera = new OrthographicCamera(
       (this.cameraFrustumSize * aspect) / -2,
@@ -40,7 +32,12 @@ export class MainScene extends Scene {
       1,
       1000,
     );
-    this.camera.zoom = 125;
+    this.camera.zoom =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      )
+        ? 85
+        : 125;
     this.camera.updateProjectionMatrix();
 
     this.camera.position.set(0, 0, 3);
@@ -61,8 +58,8 @@ export class MainScene extends Scene {
     };
     this.controls.update();
 
-    const ambientLight = new AmbientLight(100);
-    this.add(ambientLight);
+    // const ambientLight = new AmbientLight(100);
+    // this.add(ambientLight);
 
     this.renderer = new WebGLRenderer({
       canvas: this.canvas,
@@ -79,7 +76,7 @@ export class MainScene extends Scene {
     window.addEventListener('resize', this.resize.bind(this));
 
     raf.subscribe('three', this.update.bind(this));
-    raf.subscribe('userMeshMaterial', UserMesh.update.bind(this));
+    raf.subscribe('userMeshMaterials', UserMesh.update.bind(this));
   }
 
   resize() {

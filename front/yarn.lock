@@ -751,6 +751,11 @@
     "prelude-ls" "^1.2.1"
     "type-check" "~0.4.0"
 
+"lil-gui@^0.14.0":
+  "integrity" "sha512-pWdM6KK9xhUyGBQt6tgamvP4S5I1tcqCtI1SqJKwCBYwL55s6C9QTBaHYZwBcbfRdeu0LxNeCCbfD29nV4ROzA=="
+  "resolved" "https://registry.npmjs.org/lil-gui/-/lil-gui-0.14.0.tgz"
+  "version" "0.14.0"
+
 "lodash.merge@^4.6.2":
   "integrity" "sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ=="
   "resolved" "https://registry.npmjs.org/lodash.merge/-/lodash.merge-4.6.2.tgz"

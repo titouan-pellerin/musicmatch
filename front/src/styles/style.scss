@@ -83,7 +83,8 @@ body {
   overflow-x: hidden;
   overflow-y: overlay;
   color: $black;
-  background: linear-gradient(#e1eaf7, #c0d9fc);
+  // background: linear-gradient(#e1eaf7, #c0d9fc);
+  background: linear-gradient(90deg, #c0d9fc 0%, #e1eaf7 100%);
   background-attachment: fixed;
 }
 
@@ -336,6 +337,8 @@ p {
   text-align: center;
   width: 10em;
   font-weight: 200;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-name.hidden {

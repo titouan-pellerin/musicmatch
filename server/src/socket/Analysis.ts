@@ -13,6 +13,8 @@ export function analyze(users: Map<Socket, SocketUser>, roomId: string) {
 
   users.forEach((user, key) => {
     if (user.roomId === roomId) {
+      console.log(user.spotify.name, roomId);
+
       let usersWithScores: UserWithScore[] = [];
 
       const userTracks = user.spotify.tracks;
@@ -24,42 +26,44 @@ export function analyze(users: Map<Socket, SocketUser>, roomId: string) {
 
       console.time("second loop");
       usersToCompare.forEach((userToCompare) => {
-        console.time("inner loop");
-        const userTracksToCompare = userToCompare.spotify.tracks;
-        const userArtistsToCompare = userToCompare.spotify.artists;
-        const userGenresToCompare: { genre: string; score: number }[] = [];
+        if (userToCompare.roomId === roomId) {
+          console.time("inner loop");
+          const userTracksToCompare = userToCompare.spotify.tracks;
+          const userArtistsToCompare = userToCompare.spotify.artists;
+          const userGenresToCompare: { genre: string; score: number }[] = [];
 
-        console.time("artists");
-        const artistsScore = compareArtists(
-          userArtists,
-          userArtistsToCompare,
-          userGenres,
-          userGenresToCompare
-        );
-        console.timeEnd("artists");
+          console.time("artists");
+          const artistsScore = compareArtists(
+            userArtists,
+            userArtistsToCompare,
+            userGenres,
+            userGenresToCompare
+          );
+          console.timeEnd("artists");
 
-        console.time("tracks");
-        const tracksScore = compareTracks(userTracks, userTracksToCompare);
-        console.timeEnd("tracks");
+          console.time("tracks");
+          const tracksScore = compareTracks(userTracks, userTracksToCompare);
+          console.timeEnd("tracks");
 
-        console.time("genres");
-        userGenresToCompare.sort((a, b) => b.score - a.score).splice(10);
-        userGenres.sort((a, b) => b.score - a.score).splice(10);
+          console.time("genres");
+          userGenresToCompare.sort((a, b) => b.score - a.score).splice(10);
+          userGenres.sort((a, b) => b.score - a.score).splice(10);
 
-        const genresScore = compareGenres(userGenres, userGenresToCompare);
-        console.timeEnd("genres");
+          const genresScore = compareGenres(userGenres, userGenresToCompare);
+          console.timeEnd("genres");
 
-        usersWithScores.push({
-          user: {
-            id: userToCompare.id,
-            spotify: {
-              name: userToCompare.spotify.name,
-              id: userToCompare.spotify.id,
+          usersWithScores.push({
+            user: {
+              id: userToCompare.id,
+              spotify: {
+                name: userToCompare.spotify.name,
+                id: userToCompare.spotify.id,
+              },
             },
-          },
-          scores: { artistsScore, tracksScore, genresScore },
-        });
-        console.timeEnd("inner loop");
+            scores: { artistsScore, tracksScore, genresScore },
+          });
+          console.timeEnd("inner loop");
+        }
       });
 
       usersWithScores.sort(
@@ -93,6 +97,9 @@ function compareArtists(
 ) {
   let score = 0;
   let matchingArtists: ReallySimplifiedArtist[] = [];
+  const bestScore = 50;
+  const scoreIncrement =
+    bestScore / Math.max(artists.length, artistsToCompare.length);
   artists.forEach((artist, index) => {
     addUserGenre(artist, userGenres);
     if (artistsToCompare[index])
@@ -101,7 +108,7 @@ function compareArtists(
       (artistToCompare) => artistToCompare.id === artist.id
     );
     if (artistsMatch.length === 1) {
-      score++;
+      score += scoreIncrement;
       matchingArtists.push(artist);
     }
   });
@@ -114,12 +121,15 @@ function compareTracks(
 ) {
   let score = 0;
   let matchingTracks: ReallySimplifiedTrack[] = [];
+  const bestScore = 100;
+  const scoreIncrement =
+    bestScore / Math.max(tracks.length, tracksToCompare.length);
   tracks.forEach((track) => {
     const tracksMatch = tracksToCompare.filter(
       (trackToCompare) => trackToCompare.id === track.id
     );
     if (tracksMatch.length === 1) {
-      score += 2;
+      score += scoreIncrement;
       matchingTracks.push(track);
     }
   });

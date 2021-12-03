@@ -14,15 +14,14 @@ import raf from '../utils/Raf';
 
 export class UserMesh extends Mesh {
   static userMeshes: Map<string, UserMesh> = new Map();
-  static columnsIndex = 0;
-  static rowsIndex = 0;
+  static userMeshesGrid: Map<Vector3, boolean> = new Map();
   static scene: MainScene;
   static userMeshesGroup = new Group();
   static canvas: HTMLCanvasElement;
   static textureloader = new TextureLoader();
   static matcapTexture = UserMesh.textureloader.load('/textures/metal.jpg');
   static userMeshesGroupPositions: Vector3[] = [];
-  static userMeshesGroupPosition = new Vector3(0, 0, 0);
+  static userMeshesGroupPosition: Vector3;
   static materialParameters: {
     roughness: 0;
     metalness: 1;
@@ -90,19 +89,57 @@ export class UserMesh extends Mesh {
   }
 
   positionMesh() {
-    this.position.set(UserMesh.rowsIndex * 1.2, UserMesh.columnsIndex * 3, 0);
-    gsap.to(UserMesh.userMeshesGroup.position, {
-      duration: 0.75,
-      x: -UserMesh.rowsIndex * 0.6,
-      y: -UserMesh.columnsIndex * 1.5,
-      ease: 'power3.out',
-    });
+    const offsetX = 2.5;
+    const offsetY = 3;
+    const rowLength = offsetX + 3;
+    let newPosition: Vector3 | null = null;
+    if (UserMesh.userMeshesGrid.size === 0) {
+      newPosition = new Vector3(0, 0, 0);
+    } else {
+      for (let [position, isOccupied] of UserMesh.userMeshesGrid) {
+        if (!isOccupied) {
+          console.log('empty spot');
 
-    if (UserMesh.rowsIndex <= 5) UserMesh.rowsIndex++;
-    else {
-      UserMesh.rowsIndex = 0;
-      UserMesh.columnsIndex--;
+          newPosition = position;
+          break;
+        }
+      }
+      if (!newPosition) {
+        const lastPos = [...UserMesh.userMeshesGrid.keys()][
+          UserMesh.userMeshesGrid.size - 1
+        ];
+        console.log(lastPos, rowLength);
+
+        newPosition = new Vector3();
+        if (lastPos.x <= rowLength) {
+          console.log('same row');
+          newPosition.x = lastPos.x + offsetX;
+          newPosition.y = (lastPos.x - 0.5) % 2 === 0 ? lastPos.y + 0.5 : lastPos.y - 0.5;
+        } else {
+          console.log('new row');
+          newPosition.x = 0;
+          newPosition.y = lastPos.y - offsetY;
+        }
+      }
     }
+
+    this.position.set(newPosition.x, newPosition.y, newPosition.z);
+    UserMesh.userMeshesGrid.set(this.position, true);
+    console.log('add', UserMesh.userMeshesGrid);
+
+    // this.position.set(UserMesh.rowsIndex * 1.2, UserMesh.columnsIndex * 3, 0);
+    // gsap.to(UserMesh.userMeshesGroup.position, {
+    //   duration: 0.75,
+    //   x: -UserMesh.rowsIndex * 0.6,
+    //   y: -UserMesh.columnsIndex * 1.5,
+    //   ease: 'power3.out',
+    // });
+
+    // if (UserMesh.rowsIndex <= 5) UserMesh.rowsIndex++;
+    // else {
+    //   UserMesh.rowsIndex = 0;
+    //   UserMesh.columnsIndex--;
+    // }
     const tempV = new Vector3();
 
     this.updateWorldMatrix(true, false);
@@ -142,12 +179,22 @@ export class UserMesh extends Mesh {
   static remove(id: string) {
     const meshToRemove = UserMesh.userMeshes.get(id) as UserMesh;
     document.getElementById(id)?.classList.add('hidden');
+    UserMesh.userMeshesGrid.set(meshToRemove.position, false);
+    console.log('remove animation');
+
+    gsap.to(meshToRemove.rotation, {
+      duration: 0.75,
+      x: 0,
+      y: 0,
+      z: Math.PI,
+      ease: 'power4.out',
+    });
     gsap.to(meshToRemove.scale, {
       duration: 0.75,
       x: 0,
       y: 0,
       z: 0,
-      ease: 'power3',
+      ease: 'power3.in',
       onComplete: () => {
         UserMesh.userMeshesGroup.remove(meshToRemove);
         UserMesh.userMeshes.delete(id);
@@ -157,55 +204,56 @@ export class UserMesh extends Mesh {
   }
 
   static cloneUser(id: string, name: string) {
-    const clonedMesh = [...UserMesh.userMeshes.values()][0].clone();
-    const matcapMaterial = (clonedMesh.material as MeshMatcapMaterial).clone();
-    matcapMaterial.onBeforeCompile = (shader) => {
-      const uniforms = {
-        uTime: { value: raf.elapsedTime },
-        uSeed: { value: MathUtils.randFloat(0.1, 1) },
-      };
-      shader.uniforms.uTime = uniforms.uTime;
-      shader.uniforms.uSeed = uniforms.uSeed;
+    console.log('beforeClone');
+    // const clonedMesh = [...UserMesh.userMeshes.values()][0].clone();
+    // console.log('afterClone');
+    // clonedMesh.positionMesh();
+    // const matcapMaterial = (clonedMesh.material as MeshMatcapMaterial).clone();
+    // matcapMaterial.onBeforeCompile = (shader) => {
+    //   const uniforms = {
+    //     uTime: { value: raf.elapsedTime },
+    //     uSeed: { value: MathUtils.randFloat(0.1, 1) },
+    //   };
+    //   shader.uniforms.uTime = uniforms.uTime;
+    //   shader.uniforms.uSeed = uniforms.uSeed;
 
-      clonedMesh.uniforms = uniforms;
+    //   clonedMesh.uniforms = uniforms;
 
-      shader.vertexShader = shader.vertexShader.replace(
-        '#include <common>',
-        `
-        #include <common>
-        
-        uniform float uTime;
-        uniform float uSeed;
-        
-        ${noise}
-        `,
-      );
+    //   shader.vertexShader = shader.vertexShader.replace(
+    //     '#include <common>',
+    //     `
+    //     #include <common>
 
-      shader.vertexShader = shader.vertexShader.replace(
-        '#include <project_vertex>',
-        `
-        #include <project_vertex>
-        
-        vNormal = normal;
-        vec4 modelPosition = modelViewMatrix * vec4(position, 1.0);
-        float noiseX = cnoise(vec2(normal.x * modelPosition.z * uSeed, uTime * uSeed));
-        float noiseY = cnoise(vec2(normal.z * modelPosition.x, uTime + uSeed));
-        float noiseZ = cnoise(vec2(normal.y * modelPosition.y * uSeed, uTime * uSeed));
-        
-        modelPosition.x -= sin(noiseX * uSeed + uTime * 4. + uSeed) * .1 * -uSeed;
-        modelPosition.y += sin(noiseY * 3. + uTime * 3. + uSeed * .10) * .1;
-        modelPosition.z += atan(noiseZ * uSeed + uTime * 2. + uSeed) * .1;
-        gl_Position = projectionMatrix * modelPosition * uSeed;
-        `,
-      );
-    };
+    //     uniform float uTime;
+    //     uniform float uSeed;
 
-    clonedMesh.material = matcapMaterial;
-    clonedMesh.nameEl.innerText = name;
-    clonedMesh.nameEl.id = id;
+    //     ${noise}
+    //     `,
+    //   );
 
-    clonedMesh.positionMesh();
+    //   shader.vertexShader = shader.vertexShader.replace(
+    //     '#include <project_vertex>',
+    //     `
+    //     #include <project_vertex>
 
-    return clonedMesh;
+    //     vNormal = normal;
+    //     vec4 modelPosition = modelViewMatrix * vec4(position, 1.0);
+    //     float noiseX = cnoise(vec2(normal.x * modelPosition.z * uSeed, uTime * uSeed));
+    //     float noiseY = cnoise(vec2(normal.z * modelPosition.x, uTime + uSeed));
+    //     float noiseZ = cnoise(vec2(normal.y * modelPosition.y * uSeed, uTime * uSeed));
+
+    //     modelPosition.x -= sin(noiseX * uSeed + uTime * 4. + uSeed) * .1 * -uSeed;
+    //     modelPosition.y += sin(noiseY * 3. + uTime * 3. + uSeed * .10) * .1;
+    //     modelPosition.z += atan(noiseZ * uSeed + uTime * 2. + uSeed) * .1;
+    //     gl_Position = projectionMatrix * modelPosition * uSeed;
+    //     `,
+    //   );
+    // };
+    const newUserMesh = new UserMesh(id, name);
+    // clonedMesh.material = matcapMaterial;
+    // clonedMesh.nameEl.innerText = name;
+    // clonedMesh.nameEl.id = id;
+
+    return newUserMesh;
   }
 }

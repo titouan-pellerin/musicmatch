@@ -89,6 +89,17 @@ export class UsersSocket {
   }
 
   removeUser(user: SimpleUser) {
+    if (this.usersAnalysis) {
+      if (UserMesh.userMeshesGroupPositions) this.previous();
+      if (this.startBtn) {
+        this.startBtn.children[0].textContent = 'Re-launch the analysis';
+        this.startBtn.addEventListener('click', this.startAnalysis.bind(this));
+
+        document.querySelector('.start-btn-container')?.classList.remove('hidden');
+        document.querySelector('.hint-container')?.classList.add('hidden');
+        this.usersAnalysis = null;
+      }
+    }
     this.users.splice(this.users.indexOf(user), 1);
     UserMesh.remove(user.id);
   }
@@ -132,11 +143,18 @@ export class UsersSocket {
     currentMesh.scale.set(0, 0, 0);
     currentMesh.nameEl.classList.remove('hidden');
     gsap.to(currentMesh.scale, {
-      duration: 0.75,
+      duration: 0.95,
       x: 1,
       y: 1,
       z: 1,
       ease: 'power3.out',
+    });
+    gsap.to(currentMesh.rotation, {
+      duration: 1.15,
+      x: 0,
+      y: 0,
+      z: -Math.PI,
+      ease: 'power4.out',
     });
     UserMesh.userMeshesGroup.add(currentMesh);
     UserMesh.userMeshesGroupPositions.push(currentMesh.position.clone());
@@ -154,10 +172,6 @@ export class UsersSocket {
       const currentUserAnalysis = this.usersAnalysis.filter(
         (userAnalysis) => userAnalysis.user.id === id,
       )[0];
-
-      document.querySelector('.canvas-container')?.classList.add('reduced');
-      document.querySelector('.back-btn-container')?.classList.remove('hidden');
-      document.querySelector('.hint-container')?.classList.add('hidden');
 
       const currentUserMesh = UserMesh.userMeshes.get(id) as Mesh;
       const bestMatch = currentUserAnalysis.usersWithScores[0];
@@ -205,6 +219,7 @@ export class UsersSocket {
         z: 0,
         ease: 'power3.out',
       });
+
       gsap.to(currentUserMesh.scale, {
         duration: 0.75,
         x: 1,
@@ -213,11 +228,6 @@ export class UsersSocket {
         ease: 'power3.out',
       });
 
-      gsap.to(this.scene.camera, {
-        duration: 0.75,
-        zoom: 125,
-        onUpdate: () => this.scene.camera.updateProjectionMatrix(),
-      });
       gsap.to(UserMesh.userMeshesGroup.position, {
         duration: 0.75,
         x: 0,
@@ -275,6 +285,9 @@ export class UsersSocket {
           });
         }
       });
+      document.querySelector('.canvas-container')?.classList.add('reduced');
+      document.querySelector('.back-btn-container')?.classList.remove('hidden');
+      document.querySelector('.hint-container')?.classList.add('hidden');
     }
   }
   previous(e: Event | null = null) {
