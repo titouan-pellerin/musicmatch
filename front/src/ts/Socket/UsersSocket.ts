@@ -7,7 +7,7 @@ import {
 } from './../../../typings/index';
 import { io, Socket } from 'socket.io-client';
 import { MainScene } from '../Three/MainScene';
-import { Mesh, ShaderMaterial } from 'three';
+import { Mesh } from 'three';
 import gsap from 'gsap';
 import { ArtistsListEl } from '../Spotify/Elements/ArtistsListEl';
 import { TracksListEl } from '../Spotify/Elements/TracksListEl';
