@@ -7,7 +7,7 @@ import {
 } from './../../../typings/index';
 import { io, Socket } from 'socket.io-client';
 import { MainScene } from '../Three/MainScene';
-import { Mesh, Vector3 } from 'three';
+import { Mesh } from 'three';
 import gsap from 'gsap';
 import { ArtistsListEl } from '../Spotify/Elements/ArtistsListEl';
 import { TracksListEl } from '../Spotify/Elements/TracksListEl';
@@ -220,7 +220,6 @@ export class UsersSocket {
         z: 3,
         onUpdate() {
           console.log(this);
-
           controls.target.copy(this._targets[0]);
         },
       });
