@@ -7,7 +7,7 @@ import {
 } from './../../../typings/index';
 import { io, Socket } from 'socket.io-client';
 import { MainScene } from '../Three/MainScene';
-import { Mesh } from 'three';
+import { Mesh, ShaderMaterial } from 'three';
 import gsap from 'gsap';
 import { ArtistsListEl } from '../Spotify/Elements/ArtistsListEl';
 import { TracksListEl } from '../Spotify/Elements/TracksListEl';
@@ -210,8 +210,14 @@ export class UsersSocket {
       document.getElementById(id)?.classList.remove('hidden');
       document.querySelector('.results')?.classList.add('show');
       document.body.classList.remove('no-overflow-y');
-      this.scene.controls.reset();
       this.scene.controls.enabled = false;
+      // gsap.to(this.scene.camera.position, {
+      //   duration: 0.75,
+      //   ease: 'power3.out',
+      //   x: 0,
+      //   y: 0,
+      //   z: 3,
+      // });
       gsap.to(currentUserMesh.position, {
         duration: 0.75,
         x: -1.5,
@@ -219,7 +225,13 @@ export class UsersSocket {
         z: 0,
         ease: 'power3.out',
       });
-
+      gsap.to(currentUserMesh.rotation, {
+        duration: 0.75,
+        x: 0,
+        y: 0,
+        z: Math.PI,
+        ease: 'power3.out',
+      });
       gsap.to(currentUserMesh.scale, {
         duration: 0.75,
         x: 1,
@@ -247,13 +259,13 @@ export class UsersSocket {
           z: 0,
           ease: 'power3.out',
         });
-        // gsap.to(bestMatchMesh.rotation, {
-        //   duration: 0.75,
-        //   x: Math.PI,
-        //   y: 0,
-        //   z: 0,
-        //   ease: 'power3.out',
-        // });
+        gsap.to(bestMatchMesh.rotation, {
+          duration: 0.75,
+          x: 0,
+          y: 0,
+          z: -Math.PI,
+          ease: 'power3.out',
+        });
         gsap.to(bestMatchMesh.scale, {
           duration: 0.75,
           x: 1,
@@ -269,24 +281,28 @@ export class UsersSocket {
           meshesToHide.push(UserMesh.userMeshes.get(userAnalysis.user.id) as UserMesh);
         }
       });
-      const meshesToHidePositions = meshesToHide.map((meshToHide) => meshToHide.position);
-      const meshesToHideScales = meshesToHide.map((meshToHide) => meshToHide.scale);
-      gsap.to(meshesToHidePositions, {
-        duration: 0.75,
-        x: 0,
-        y: 0,
-        z: 0,
-        stagger: 0.03,
-        ease: 'power3.out',
-      });
-      gsap.to(meshesToHideScales, {
-        duration: 0.75,
-        x: 0.2,
-        y: 0.2,
-        z: 0.2,
-        stagger: 0.03,
-        ease: 'power3.out',
-      });
+      if (meshesToHide.length > 0) {
+        const meshesToHidePositions = meshesToHide.map(
+          (meshToHide) => meshToHide.position,
+        );
+        const meshesToHideScales = meshesToHide.map((meshToHide) => meshToHide.scale);
+        gsap.to(meshesToHidePositions, {
+          duration: 0.75,
+          x: 0,
+          y: 0,
+          z: 3,
+          stagger: 0.03,
+          ease: 'power3.out',
+        });
+        gsap.to(meshesToHideScales, {
+          duration: 0.75,
+          x: 0,
+          y: 0,
+          z: 0,
+          stagger: 0.03,
+          ease: 'power3.out',
+        });
+      }
       document.querySelector('.canvas-container')?.classList.add('reduced');
       document.querySelector('.back-btn-container')?.classList.remove('hidden');
       document.querySelector('.hint-container')?.classList.add('hidden');
@@ -315,6 +331,14 @@ export class UsersSocket {
         ease: 'power3.out',
         x: UserMesh.userMeshesGroupPositions[i].x,
         y: UserMesh.userMeshesGroupPositions[i].y,
+        z: 0,
+      });
+      gsap.to(child.rotation, {
+        duration: 0.75,
+        ease: 'power3.out',
+        x: 0,
+        y: 0,
+        z: 0,
       });
       gsap.to(child.scale, {
         duration: 0.75,

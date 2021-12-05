@@ -9,25 +9,21 @@ import {
   TorusGeometry,
   Vector3,
 } from 'three';
-import { noise } from '../../glsl/utils/noise2d';
+import commonReplaceVertexShader from '../../glsl/UserMesh/commonReplace.glsl?raw';
+import projectReplaceVertexShader from '../../glsl/UserMesh/projectReplace.glsl?raw';
 import raf from '../utils/Raf';
 
 export class UserMesh extends Mesh {
   static userMeshes: Map<string, UserMesh> = new Map();
   static userMeshesGrid: Map<Vector3, boolean> = new Map();
+  static lastPos = new Vector3(0, 0, 0);
   static scene: MainScene;
   static userMeshesGroup = new Group();
   static canvas: HTMLCanvasElement;
   static textureloader = new TextureLoader();
   static matcapTexture = UserMesh.textureloader.load('/textures/metal.jpg');
   static userMeshesGroupPositions: Vector3[] = [];
-  static userMeshesGroupPosition: Vector3;
-  static materialParameters: {
-    roughness: 0;
-    metalness: 1;
-    clearcoat: 0.1;
-    clearcoatRoughness: number;
-  };
+  static userMeshesGroupPosition = new Vector3();
   nameEl: HTMLHeadingElement;
   uniforms: {
     uTime: { value: number };
@@ -36,10 +32,10 @@ export class UserMesh extends Mesh {
   constructor(id: string, name: string) {
     const userGeometry = new TorusGeometry(1, 0.09, 64, 64);
 
-    const userMaterial = new MeshMatcapMaterial({});
+    const userMaterial = new MeshMatcapMaterial();
     const uniforms = {
       uTime: { value: raf.elapsedTime },
-      uSeed: { value: MathUtils.randFloat(0.1, 1) },
+      uSeed: { value: MathUtils.randFloat(0.1, 0.5) },
     };
     userMaterial.matcap = UserMesh.matcapTexture;
     userMaterial.onBeforeCompile = (shader) => {
@@ -48,32 +44,12 @@ export class UserMesh extends Mesh {
 
       shader.vertexShader = shader.vertexShader.replace(
         '#include <common>',
-        `
-        #include <common>
-        
-        uniform float uTime;
-        uniform float uSeed;
-        
-        ${noise}
-        `,
+        commonReplaceVertexShader,
       );
 
       shader.vertexShader = shader.vertexShader.replace(
         '#include <project_vertex>',
-        `
-        #include <project_vertex>
-        
-        vNormal = normal;
-        vec4 modelPosition = modelViewMatrix * vec4(position, 1.0);
-        float noiseX = cnoise(vec2(normal.x * modelPosition.z * uSeed, uTime * uSeed));
-        float noiseY = cnoise(vec2(normal.z * modelPosition.x, uTime + uSeed));
-        float noiseZ = cnoise(vec2(normal.y * modelPosition.y * uSeed, uTime * uSeed));
-        
-        modelPosition.x -= sin(noiseX * uSeed + uTime * 4. + uSeed) * .1 * -uSeed;
-        modelPosition.y += sin(noiseY * 3. + uTime * 3. + uSeed * .10) * .1;
-        modelPosition.z += atan(noiseZ * uSeed + uTime * 2. + uSeed) * .1;
-        gl_Position = projectionMatrix * modelPosition * uSeed;
-        `,
+        projectReplaceVertexShader,
       );
     };
 
@@ -98,48 +74,41 @@ export class UserMesh extends Mesh {
     } else {
       for (let [position, isOccupied] of UserMesh.userMeshesGrid) {
         if (!isOccupied) {
-          console.log('empty spot');
-
-          newPosition = position;
+          newPosition = position.clone();
+          UserMesh.userMeshesGrid.delete(position);
           break;
         }
       }
       if (!newPosition) {
-        const lastPos = [...UserMesh.userMeshesGrid.keys()][
-          UserMesh.userMeshesGrid.size - 1
-        ];
-        console.log(lastPos, rowLength);
-
         newPosition = new Vector3();
-        if (lastPos.x <= rowLength) {
-          console.log('same row');
-          newPosition.x = lastPos.x + offsetX;
-          newPosition.y = (lastPos.x - 0.5) % 2 === 0 ? lastPos.y + 0.5 : lastPos.y - 0.5;
+        if (UserMesh.lastPos.x <= rowLength) {
+          newPosition.x = UserMesh.lastPos.x + offsetX;
+          newPosition.y =
+            (UserMesh.lastPos.x - 0.5) % 2 === 0
+              ? UserMesh.lastPos.y + 0.5
+              : UserMesh.lastPos.y - 0.5;
         } else {
-          console.log('new row');
           newPosition.x = 0;
-          newPosition.y = lastPos.y - offsetY;
+          newPosition.y = UserMesh.lastPos.y - offsetY;
         }
+        UserMesh.lastPos = newPosition;
       }
     }
 
     this.position.set(newPosition.x, newPosition.y, newPosition.z);
     UserMesh.userMeshesGrid.set(this.position, true);
-    console.log('add', UserMesh.userMeshesGrid);
+    console.log(UserMesh.userMeshesGrid);
 
-    // this.position.set(UserMesh.rowsIndex * 1.2, UserMesh.columnsIndex * 3, 0);
-    // gsap.to(UserMesh.userMeshesGroup.position, {
-    //   duration: 0.75,
-    //   x: -UserMesh.rowsIndex * 0.6,
-    //   y: -UserMesh.columnsIndex * 1.5,
-    //   ease: 'power3.out',
-    // });
+    gsap.to(UserMesh.userMeshesGroup.position, {
+      duration: 0.75,
+      ease: 'power3.out',
+      x: -newPosition.x * 0.5,
+      y: -newPosition.y,
+      z: 0,
+    });
+    UserMesh.userMeshesGroupPosition.set(-newPosition.x * 0.5, -newPosition.y, 0);
+    // UserMesh.userMeshesGroup.position.set(-newPosition.x * 0.5, -newPosition.y * 0.5, 0);
 
-    // if (UserMesh.rowsIndex <= 5) UserMesh.rowsIndex++;
-    // else {
-    //   UserMesh.rowsIndex = 0;
-    //   UserMesh.columnsIndex--;
-    // }
     const tempV = new Vector3();
 
     this.updateWorldMatrix(true, false);
@@ -154,10 +123,6 @@ export class UserMesh extends Mesh {
     this.nameEl.style.transform = `translate(-50%, -50%) translate(${x}px,calc(${y}px + ${
       14 * scaleFactor
     }vh)) scale(${scaleFactor})`;
-  }
-
-  setPosition(x: number, y: number, z: number) {
-    this.position.set(x, y, z);
   }
 
   static update() {
@@ -184,7 +149,7 @@ export class UserMesh extends Mesh {
     const meshToRemove = UserMesh.userMeshes.get(id) as UserMesh;
     document.getElementById(id)?.classList.add('hidden');
     UserMesh.userMeshesGrid.set(meshToRemove.position, false);
-    console.log('remove animation');
+    console.log(UserMesh.userMeshesGrid);
 
     gsap.to(meshToRemove.rotation, {
       duration: 0.75,
@@ -208,7 +173,6 @@ export class UserMesh extends Mesh {
   }
 
   static cloneUser(id: string, name: string) {
-    console.log('beforeClone');
     // const clonedMesh = [...UserMesh.userMeshes.values()][0].clone();
     // console.log('afterClone');
     // clonedMesh.positionMesh();

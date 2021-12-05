@@ -41,9 +41,11 @@ export class SpotifyLogin {
 
               resolve(hash.access_token);
             }
+          } else {
+            console.log(e.data);
+
+            reject();
           }
-        } else {
-          reject();
         }
       });
     });

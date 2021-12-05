@@ -45,7 +45,7 @@ export class MainScene extends Scene {
     this.controls = new OrbitControls(this.camera, this.canvas);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.05;
-    this.controls.enableRotate = false;
+    this.controls.enableRotate = true;
     this.controls.enableZoom = false;
     this.controls.mouseButtons = {
       LEFT: MOUSE.PAN,
@@ -57,9 +57,6 @@ export class MainScene extends Scene {
       TWO: TOUCH.DOLLY_PAN,
     };
     this.controls.update();
-
-    // const ambientLight = new AmbientLight(100);
-    // this.add(ambientLight);
 
     this.renderer = new WebGLRenderer({
       canvas: this.canvas,
@@ -99,6 +96,8 @@ export class MainScene extends Scene {
 
   update() {
     this.controls.update();
+    // console.log(this.camera.position.clone());
+
     this.renderer.render(this, this.camera);
   }
 }
