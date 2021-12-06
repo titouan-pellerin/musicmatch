@@ -1,4 +1,4 @@
-import { Cursor } from './ts/utils/Cursor';
+import cursor from './ts/utils/Cursor';
 import { Room } from './ts/Socket/Room';
 import { SpotifyData } from './ts/Spotify/SpotifyData';
 import { SpotifyLogin } from './ts/Spotify/SpotifyLogin';
@@ -42,7 +42,7 @@ function init() {
   cursorEl = document.querySelector('.cursor');
   hoverables = document.querySelectorAll('.hoverable');
   if (cursorEl) {
-    new Cursor(cursorEl, hoverables);
+    cursor.updateArray();
   }
   if (canvas) {
     mainScene = new MainScene(canvas);

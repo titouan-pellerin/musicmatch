@@ -12,6 +12,7 @@ import gsap from 'gsap';
 import { ArtistsListEl } from '../Spotify/Elements/ArtistsListEl';
 import { TracksListEl } from '../Spotify/Elements/TracksListEl';
 import { GenresListEl } from '../Spotify/Elements/GenresListEl';
+import cursor from '../utils/Cursor';
 
 export class UsersSocket {
   socket: Socket;
@@ -318,6 +319,7 @@ export class UsersSocket {
           ease: 'back.in',
         });
       }
+      cursor.updateArray();
       document.querySelector('.canvas-container')?.classList.add('reduced');
       document.querySelector('.back-btn-container')?.classList.remove('hidden');
       document.querySelector('.hint-container')?.classList.add('hidden');

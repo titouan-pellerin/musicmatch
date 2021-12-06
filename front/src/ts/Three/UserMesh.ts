@@ -1,3 +1,4 @@
+import cursor from './../utils/Cursor';
 import { MainScene } from './MainScene';
 import gsap from 'gsap';
 import {
@@ -58,8 +59,9 @@ export class UserMesh extends Mesh {
     this.nameEl = document.createElement('h2');
     this.nameEl.innerText = name;
     this.nameEl.id = id;
-    this.nameEl.classList.add('user-name', 'hidden');
+    this.nameEl.classList.add('user-name', 'hidden', 'hoverable');
     document.querySelector('.labels')?.appendChild(this.nameEl);
+    cursor.updateArray();
 
     this.positionMesh();
   }
@@ -173,55 +175,7 @@ export class UserMesh extends Mesh {
   }
 
   static cloneUser(id: string, name: string) {
-    // const clonedMesh = [...UserMesh.userMeshes.values()][0].clone();
-    // console.log('afterClone');
-    // clonedMesh.positionMesh();
-    // const matcapMaterial = (clonedMesh.material as MeshMatcapMaterial).clone();
-    // matcapMaterial.onBeforeCompile = (shader) => {
-    //   const uniforms = {
-    //     uTime: { value: raf.elapsedTime },
-    //     uSeed: { value: MathUtils.randFloat(0.1, 1) },
-    //   };
-    //   shader.uniforms.uTime = uniforms.uTime;
-    //   shader.uniforms.uSeed = uniforms.uSeed;
-
-    //   clonedMesh.uniforms = uniforms;
-
-    //   shader.vertexShader = shader.vertexShader.replace(
-    //     '#include <common>',
-    //     `
-    //     #include <common>
-
-    //     uniform float uTime;
-    //     uniform float uSeed;
-
-    //     ${noise}
-    //     `,
-    //   );
-
-    //   shader.vertexShader = shader.vertexShader.replace(
-    //     '#include <project_vertex>',
-    //     `
-    //     #include <project_vertex>
-
-    //     vNormal = normal;
-    //     vec4 modelPosition = modelViewMatrix * vec4(position, 1.0);
-    //     float noiseX = cnoise(vec2(normal.x * modelPosition.z * uSeed, uTime * uSeed));
-    //     float noiseY = cnoise(vec2(normal.z * modelPosition.x, uTime + uSeed));
-    //     float noiseZ = cnoise(vec2(normal.y * modelPosition.y * uSeed, uTime * uSeed));
-
-    //     modelPosition.x -= sin(noiseX * uSeed + uTime * 4. + uSeed) * .1 * -uSeed;
-    //     modelPosition.y += sin(noiseY * 3. + uTime * 3. + uSeed * .10) * .1;
-    //     modelPosition.z += atan(noiseZ * uSeed + uTime * 2. + uSeed) * .1;
-    //     gl_Position = projectionMatrix * modelPosition * uSeed;
-    //     `,
-    //   );
-    // };
     const newUserMesh = new UserMesh(id, name);
-    // clonedMesh.material = matcapMaterial;
-    // clonedMesh.nameEl.innerText = name;
-    // clonedMesh.nameEl.id = id;
-
     return newUserMesh;
   }
 }

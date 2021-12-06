@@ -1,24 +1,11 @@
 @font-face {
   font-family: 'Helvetica Neue LT Pro';
-  src: url('/fonts/HelveticaNeueLTProThEx.eot');
-  src: url('/fonts/HelveticaNeueLTProThEx.eot?#iefix') format('embedded-opentype'),
-    url('/fonts/HelveticaNeueLTProThEx.woff2') format('woff2'),
-    url('/fonts/HelveticaNeueLTProThEx.woff') format('woff'),
-    url('/fonts/HelveticaNeueLTProThEx.ttf') format('truetype'),
-    url('/fonts/HelveticaNeueLTProThEx.svg#Helvetica Neue LT Pro') format('svg');
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Helvetica Neue LT Pro';
-  src: url('/fonts/HelveticaNeueLTProMdEx.eot');
-  src: url('/fonts/HelveticaNeueLTProMdEx.eot?#iefix') format('embedded-opentype'),
-    url('/fonts/HelveticaNeueLTProMdEx.woff2') format('woff2'),
-    url('/fonts/HelveticaNeueLTProMdEx.woff') format('woff'),
-    url('/fonts/HelveticaNeueLTProMdEx.ttf') format('truetype'),
-    url('/fonts/HelveticaNeueLTProMdEx.svg#Helvetica Neue LT Pro') format('svg');
+  src: url('/fonts/HelveticaNeueLTPro-MdEx.eot');
+  src: url('/fonts/HelveticaNeueLTPro-MdEx.eot?#iefix') format('embedded-opentype'),
+    url('/fonts/HelveticaNeueLTPro-MdEx.woff2') format('woff2'),
+    url('/fonts/HelveticaNeueLTPro-MdEx.woff') format('woff'),
+    url('/fonts/HelveticaNeueLTPro-MdEx.ttf') format('truetype'),
+    url('/fonts/HelveticaNeueLTPro-MdEx.svg#HelveticaNeueLTPro-MdEx') format('svg');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -26,24 +13,26 @@
 
 @font-face {
   font-family: 'Helvetica Neue LT Pro';
-  src: url('/fonts/HelveticaNeueLTProLtEx.eot');
-  src: url('/fonts/HelveticaNeueLTProLtEx.eot?#iefix') format('embedded-opentype'),
-    url('/fonts/HelveticaNeueLTProLtEx.woff2') format('woff2'),
-    url('/fonts/HelveticaNeueLTProLtEx.woff') format('woff'),
-    url('/fonts/HelveticaNeueLTProLtEx.ttf') format('truetype'),
-    url('/fonts/HelveticaNeueLTProLtEx.svg#Helvetica Neue LT Pro') format('svg');
+  src: url('/fonts/HelveticaNeueLTPro-LtEx.eot');
+  src: url('/fonts/HelveticaNeueLTPro-LtEx.eot?#iefix') format('embedded-opentype'),
+    url('/fonts/HelveticaNeueLTPro-LtEx.woff2') format('woff2'),
+    url('/fonts/HelveticaNeueLTPro-LtEx.woff') format('woff'),
+    url('/fonts/HelveticaNeueLTPro-LtEx.ttf') format('truetype'),
+    url('/fonts/HelveticaNeueLTPro-LtEx.svg#HelveticaNeueLTPro-LtEx') format('svg');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Gyahegi';
-  src: url('/fonts/Gyahegi.eot');
-  src: url('/fonts/Gyahegi.eot?#iefix') format('embedded-opentype'),
-    // url('/fonts/Gyahegi.woff2') format('woff2'),
-    url('/fonts/Gyahegi.ttf') format('truetype');
-  font-weight: 400;
+  font-family: 'Helvetica Neue LT Pro';
+  src: url('/fonts/HelveticaNeueLTPro-ThEx.eot');
+  src: url('/fonts/HelveticaNeueLTPro-ThEx.eot?#iefix') format('embedded-opentype'),
+    url('/fonts/HelveticaNeueLTPro-ThEx.woff2') format('woff2'),
+    url('/fonts/HelveticaNeueLTPro-ThEx.woff') format('woff'),
+    url('/fonts/HelveticaNeueLTPro-ThEx.ttf') format('truetype'),
+    url('/fonts/HelveticaNeueLTPro-ThEx.svg#HelveticaNeueLTPro-ThEx') format('svg');
+  font-weight: 100;
   font-style: normal;
   font-display: swap;
 }

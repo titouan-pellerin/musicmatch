@@ -151,14 +151,13 @@ p {
   transition: border 0.35s ease, transform cubic-bezier(0.65, 0, 0.35, 1) 0.1s,
     opacity ease 0.1s;
   outline: none;
+
   &:hover,
   &:focus {
     border: $dark-grey solid 1px;
   }
 
   span {
-    margin-top: 5px;
-    line-height: 1.6rem;
     font-weight: 300;
   }
 }
@@ -179,13 +178,9 @@ p {
 
 .start-screen {
   padding: 15px;
-  h1 {
-    font-family: 'Gyahegi', serif;
-    text-transform: uppercase;
-    text-align: center;
-    font-size: 3.5rem;
+  .title {
+    height: 5rem;
     margin-bottom: 12px;
-    line-height: 1.8em;
   }
 
   p {
@@ -205,10 +200,6 @@ p {
   }
 }
 
-.create-room-btn {
-  margin-bottom: 5px;
-}
-
 .join-container {
   display: flex;
   justify-content: center;
@@ -218,7 +209,7 @@ p {
 
 .join-input-container {
   input {
-    padding: 10px 5px 5px 5px;
+    padding: 10px 5px;
     font-weight: 300;
     text-align: center;
     background-color: transparent;
@@ -307,11 +298,11 @@ p {
   text-align: center;
 
   .copy-link {
-    margin-top: 5px;
     color: $black;
     opacity: 1;
     font-weight: 400;
     transform: scale(1);
+    margin-top: 10px;
 
     svg {
       width: 15px;
@@ -332,17 +323,6 @@ p {
 .back-btn {
   background-color: #fff;
 }
-
-//  {
-//   width: 100%;
-//   position: absolute;
-//   bottom: 30px;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   opacity: 0.7;
-//   transition: opacity 0.3s;
-// }
 
 .hint-container.hidden {
   opacity: 0;
@@ -473,7 +453,6 @@ p {
 
   h3 {
     font-weight: 300;
-    margin-top: 5px;
   }
 
   li {
@@ -578,7 +557,7 @@ p {
     text-transform: uppercase;
     font-size: 1.2rem;
     font-weight: 300;
-    margin: 3px 0 0 5px;
+    margin-left: 5px;
   }
 
   svg {
@@ -593,7 +572,7 @@ p {
 .cursor {
   width: 30px;
   height: 30px;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   background-color: $dark-grey;

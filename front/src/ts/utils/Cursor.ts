@@ -1,39 +1,31 @@
 import raf from './Raf';
 
-export class Cursor {
+class Cursor {
   delay = 10;
   cursorEl: HTMLElement;
-  hoverArray: NodeListOf<Element>;
+  hoverArray: NodeListOf<Element> | null = null;
   _x = 0;
   _y = 0;
   endX = window.innerWidth / 2;
   endY = window.innerHeight / 2;
-  constructor(cursorEl: HTMLElement, hoverArray: NodeListOf<Element>) {
-    this.cursorEl = cursorEl;
-    this.hoverArray = hoverArray;
+  constructor() {
+    this.cursorEl = document.querySelector('.cursor') as HTMLElement;
     window.addEventListener('mousemove', this.mouseMove.bind(this));
-    document.addEventListener('mouseleave', this.toggleHideCursor.bind(this));
-    document.addEventListener('mouseenter', this.toggleHideCursor.bind(this));
+    document.addEventListener('mouseleave', this.hideCursor.bind(this));
+    document.addEventListener('mouseenter', this.showCursor.bind(this));
     raf.subscribe('cursor', this.update.bind(this));
-    this.hoverArray.forEach((hoveredEl) => {
-      hoveredEl.addEventListener('mouseenter', this.mouseHoverToggle.bind(this), false);
-      hoveredEl.addEventListener('mouseleave', this.mouseHoverToggle.bind(this), false);
-    });
   }
 
   mouseMove(e: MouseEvent) {
-    this.endX = e.pageX;
-    this.endY = e.pageY;
+    this.endX = e.clientX;
+    this.endY = e.clientY;
   }
 
-  toggleHideCursor() {
-    this.cursorEl.classList.toggle('hide-cursor');
+  showCursor() {
+    this.cursorEl.classList.remove('hide-cursor');
   }
-
-  mouseHoverToggle(e: Event) {
-    const target = e.target as HTMLElement;
-    console.log(target);
-    this.toggleHideCursor();
+  hideCursor() {
+    this.cursorEl.classList.add('hide-cursor');
   }
 
   update() {
@@ -43,4 +35,15 @@ export class Cursor {
       this._x - this.cursorEl.clientWidth * 0.5
     }px, ${this._y - this.cursorEl.clientHeight * 0.5}px)`;
   }
+
+  updateArray() {
+    this.hoverArray = document.querySelectorAll('.hoverable');
+    this.hoverArray.forEach((hoveredEl) => {
+      hoveredEl.addEventListener('mouseleave', this.showCursor.bind(this), false);
+      hoveredEl.addEventListener('mouseenter', this.hideCursor.bind(this), false);
+    });
+  }
 }
+
+const cursor = new Cursor();
+export default cursor;
