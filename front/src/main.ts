@@ -1,3 +1,4 @@
+import { Cursor } from './ts/utils/Cursor';
 import { Room } from './ts/Socket/Room';
 import { SpotifyData } from './ts/Spotify/SpotifyData';
 import { SpotifyLogin } from './ts/Spotify/SpotifyLogin';
@@ -30,10 +31,19 @@ let usersSocket: UsersSocket | null = null;
 let canvas: HTMLCanvasElement | null = null;
 let mainScene: MainScene | null = null;
 
+/** Cursor */
+let cursorEl: HTMLElement | null = null;
+let hoverables: NodeListOf<Element> | null = null;
+
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
   canvas = document.querySelector('.webgl');
+  cursorEl = document.querySelector('.cursor');
+  hoverables = document.querySelectorAll('.hoverable');
+  if (cursorEl) {
+    new Cursor(cursorEl, hoverables);
+  }
   if (canvas) {
     mainScene = new MainScene(canvas);
   }
