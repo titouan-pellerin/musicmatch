@@ -9,12 +9,9 @@ import {
 
 export function analyze(users: Map<Socket, SocketUser>, roomId: string) {
   const analyzedUsers: UserAnalysis[] = [];
-  console.time("first loop");
 
   users.forEach((user, key) => {
     if (user.roomId === roomId) {
-      console.log(user.spotify.name, roomId);
-
       let usersWithScores: UserWithScore[] = [];
 
       const userTracks = user.spotify.tracks;
@@ -24,33 +21,25 @@ export function analyze(users: Map<Socket, SocketUser>, roomId: string) {
       const usersToCompare = new Map(users);
       usersToCompare.delete(key);
 
-      console.time("second loop");
       usersToCompare.forEach((userToCompare) => {
         if (userToCompare.roomId === roomId) {
-          console.time("inner loop");
           const userTracksToCompare = userToCompare.spotify.tracks;
           const userArtistsToCompare = userToCompare.spotify.artists;
           const userGenresToCompare: { genre: string; score: number }[] = [];
 
-          console.time("artists");
           const artistsScore = compareArtists(
             userArtists,
             userArtistsToCompare,
             userGenres,
             userGenresToCompare
           );
-          console.timeEnd("artists");
 
-          console.time("tracks");
           const tracksScore = compareTracks(userTracks, userTracksToCompare);
-          console.timeEnd("tracks");
 
-          console.time("genres");
           userGenresToCompare.sort((a, b) => b.score - a.score).splice(10);
           userGenres.sort((a, b) => b.score - a.score).splice(10);
 
           const genresScore = compareGenres(userGenres, userGenresToCompare);
-          console.timeEnd("genres");
 
           usersWithScores.push({
             user: {
@@ -62,7 +51,6 @@ export function analyze(users: Map<Socket, SocketUser>, roomId: string) {
             },
             scores: { artistsScore, tracksScore, genresScore },
           });
-          console.timeEnd("inner loop");
         }
       });
 
@@ -81,10 +69,8 @@ export function analyze(users: Map<Socket, SocketUser>, roomId: string) {
         user,
         usersWithScores,
       });
-      console.timeEnd("second loop");
     }
   });
-  console.timeEnd("first loop");
 
   return analyzedUsers;
 }

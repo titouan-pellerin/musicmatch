@@ -23,6 +23,7 @@ export class UsersSocket {
   startBtn: HTMLButtonElement | null = null;
   currentUser: string | null = null;
   usersAnalysis: UserAnalysis[] | null = null;
+  isShowingMatch = false;
   constructor(serverUrl: string, roomId: string, scene: MainScene) {
     this.scene = scene;
     this.roomId = roomId;
@@ -76,7 +77,7 @@ export class UsersSocket {
       this.createUserMesh(user);
 
       if (this.usersAnalysis) {
-        if (UserMesh.userMeshesGroupPositions) this.previous();
+        if (UserMesh.userMeshesGroupPositions && this.isShowingMatch) this.previous();
         if (this.startBtn) {
           this.startBtn.children[0].textContent = 'Re-launch the analysis';
           this.startBtn.addEventListener('click', this.startAnalysis.bind(this));
@@ -91,7 +92,7 @@ export class UsersSocket {
 
   removeUser(user: SimpleUser) {
     if (this.usersAnalysis) {
-      if (UserMesh.userMeshesGroupPositions) this.previous();
+      if (UserMesh.userMeshesGroupPositions && this.isShowingMatch) this.previous();
       if (this.startBtn) {
         this.startBtn.children[0].textContent = 'Re-launch the analysis';
         this.startBtn.addEventListener('click', this.startAnalysis.bind(this));
@@ -163,6 +164,7 @@ export class UsersSocket {
   showUserMatch(e: Event) {
     e.preventDefault();
     if (this.usersAnalysis) {
+      this.isShowingMatch = true;
       cursor.stop();
       document
         .querySelector('.back-btn')
@@ -298,7 +300,6 @@ export class UsersSocket {
           x: 0,
           y: 0,
           z: 3,
-          // stagger: 0.03,
           ease: 'power3.in',
         });
         gsap.to(meshesToHideRotation, {
@@ -306,7 +307,6 @@ export class UsersSocket {
           x: 0,
           y: 0,
           z: Math.PI * 0.5,
-          // stagger: 0.1,
           ease: 'power3.in',
         });
         gsap.to(meshesToHideScales, {
@@ -324,6 +324,7 @@ export class UsersSocket {
   }
   previous(e: Event | null = null) {
     if (e) e.preventDefault();
+    this.isShowingMatch = false;
     window.scroll({
       top: 0,
       left: 0,

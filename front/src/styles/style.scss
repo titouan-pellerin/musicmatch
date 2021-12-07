@@ -6,7 +6,6 @@
 *::after {
   user-select: none;
   box-sizing: border-box;
-  // cursor: none; // si cursor custom
 }
 
 html {
@@ -77,7 +76,6 @@ select {
 body {
   width: 100%;
   padding: 0;
-  // height: 100vh;
   text-rendering: optimizeSpeed;
   font-size: 1.6rem;
   font-family: 'Helvetica Neue LT Pro', sans-serif;
@@ -385,16 +383,13 @@ p {
   display: flex;
   flex-direction: column;
   align-items: center;
-  // margin-top: 0;
   height: 0;
-  // overflow: hidden;
   opacity: 0;
   transform: translateY(0);
   transition: transform cubic-bezier(0.65, 0, 0.35, 1) 0.65s, opacity 0.65s;
 }
 
 .results.show {
-  // margin-top: -20vh;
   transform: translateY(-40vh);
   opacity: 1;
   z-index: 1;
@@ -572,8 +567,8 @@ p {
 }
 
 .cursor {
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   position: fixed;
   top: 0;
   left: 0;

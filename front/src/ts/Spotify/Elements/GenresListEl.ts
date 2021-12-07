@@ -20,7 +20,6 @@ export class GenresListEl {
         nameEl.textContent = genre;
         nameEl.classList.add('genre');
         genreEl.appendChild(nameEl);
-        // genreEl.id = genre.id;
         this.genresEl.appendChild(genreEl);
       });
   }

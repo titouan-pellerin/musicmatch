@@ -82,7 +82,6 @@ async function loginSpotify(e: Event) {
   } catch (err) {
     console.error(err);
     document.querySelector('.login-error')?.classList.remove('hidden');
-    // window.location.reload();
   }
 }
 

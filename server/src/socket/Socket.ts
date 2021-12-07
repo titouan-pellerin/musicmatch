@@ -32,7 +32,6 @@ class Connection {
     };
     usersSockets.set(socket, this.socketUser);
 
-    // On connection, send a user-connection event containing user info
     this.sendNewUser(this.socketUser.id, this.socketUser.spotify.name);
 
     socket.on("room", (roomId) => {
@@ -44,9 +43,6 @@ class Connection {
     socket.on("setSpotify", (name) => this.setSpotify(name));
 
     socket.on("startAnalysis", () => this.startAnalysis());
-
-    // socket.on("getMessages", () => this.getMessages());
-    // socket.on("message", (value) => this.handleMessage(value));
 
     socket.on("disconnect", () => this.disconnect());
     socket.on("connect_error", (err) => {
@@ -68,14 +64,12 @@ class Connection {
     this.io.sockets.in(this.socketUser.roomId).emit("users", users);
   }
 
-  // Used on new client connection
   sendNewUser(id: string, name: string) {
     this.io.sockets
       .in(this.socketUser.roomId)
       .emit("userConnection", { id, name });
   }
 
-  // Used on new client disconnection
   sendFormerUser() {
     this.io.sockets
       .in(this.socketUser.roomId)
@@ -107,18 +101,10 @@ class Connection {
   }
 
   startAnalysis() {
-    console.time("analysis");
     this.io.sockets.in(this.socketUser.roomId).emit("loadingAnalysis");
     analyzedData = analyze(usersSockets, this.socketUser.roomId);
     this.io.sockets.in(this.socketUser.roomId).emit("analysisDone");
-    console.timeEnd("analysis");
   }
-
-  //   getMessages() {
-  //     const msgs = [];
-  //     messages.forEach((message) => msgs.push(message));
-  //     this.socket.emit("messages", msgs);
-  //   }
 
   disconnect() {
     usersSockets.delete(this.socket);

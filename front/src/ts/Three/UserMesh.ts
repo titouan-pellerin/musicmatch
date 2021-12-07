@@ -106,7 +106,6 @@ export class UserMesh extends Mesh {
       z: 0,
     });
     UserMesh.userMeshesGroupPosition.set(-newPosition.x * 0.5, -newPosition.y, 0);
-    // UserMesh.userMeshesGroup.position.set(-newPosition.x * 0.5, -newPosition.y * 0.5, 0);
 
     const tempV = new Vector3();
 
