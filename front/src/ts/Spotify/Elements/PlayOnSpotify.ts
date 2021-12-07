@@ -4,7 +4,7 @@ export class PlayOnSpotify {
     this.linkEl = document.createElement('a');
     this.linkEl.href = `https://open.spotify.com/${isArtist ? 'artist' : 'track'}/${id}`;
     this.linkEl.target = '_blank';
-    this.linkEl.classList.add('play-on-spotify', 'hoverable');
+    this.linkEl.classList.add('play-on-spotify');
     const spanEl = document.createElement('span');
     spanEl.textContent = 'Play on Spotify';
     this.linkEl.appendChild(spanEl);

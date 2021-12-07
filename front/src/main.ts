@@ -35,7 +35,11 @@ let mainScene: MainScene | null = null;
 let cursorEl: HTMLElement | null = null;
 
 document.addEventListener('DOMContentLoaded', init);
-
+window.scroll({
+  top: 0,
+  left: 0,
+  behavior: 'smooth',
+});
 function init() {
   canvas = document.querySelector('.webgl');
 

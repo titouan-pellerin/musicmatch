@@ -1,4 +1,5 @@
 import raf from './Raf';
+import gsap from 'gsap';
 
 class Cursor {
   delay = 10;
@@ -12,6 +13,7 @@ class Cursor {
   hoverables: NodeListOf<Element> | null = null;
   isHovering = false;
   isVisible = false;
+  hasLeft = false;
   boundEventListeners: ((e: MouseEvent) => void)[] = [];
   constructor() {
     this.cursorEl = document.querySelector('.cursor') as HTMLElement;
@@ -22,11 +24,13 @@ class Cursor {
     this.boundEventListeners.push(
       this.mouseMove.bind(this),
       this.mouseDown.bind(this),
-      this.hideCursor.bind(this),
+      this.mouseLeaveDocument.bind(this),
+      this.mouseEnterDocument.bind(this),
     );
     window.addEventListener('mousemove', this.boundEventListeners[0]);
     document.addEventListener('mousedown', this.boundEventListeners[1]);
     document.addEventListener('mouseleave', this.boundEventListeners[2]);
+    document.addEventListener('mouseenter', this.boundEventListeners[3]);
     // document.addEventListener('mouseup', this.showCursor.bind(this));
     raf.subscribe('cursor', this.update.bind(this));
     // if (this.canvas) this.canvas.classList.add('hide-default-cursor');
@@ -37,20 +41,21 @@ class Cursor {
     window.removeEventListener('mousemove', this.boundEventListeners[0]);
     document.removeEventListener('mousedown', this.boundEventListeners[1]);
     document.removeEventListener('mouseleave', this.boundEventListeners[2]);
+    document.removeEventListener('mouseenter', this.boundEventListeners[3]);
     // document.removeEventListener('mouseenter', this.showCursor.bind(this));
     // document.removeEventListener('mouseup', this.showCursor.bind(this));
     raf.unsubscribe('cursor');
     clearTimeout(this.timer);
-    if (this.canvas) this.canvas.classList.remove('hide-default-cursor');
-    this.cursorEl.classList.add('hide-cursor');
+    this.hideCursor();
   }
 
   mouseMove(e: MouseEvent) {
-    this.endX = e.clientX;
-    this.endY = e.clientY;
-
-    clearTimeout(this.timer);
-    this.timer = setTimeout(this.showCursor.bind(this), 1000);
+    if (!this.hasLeft) {
+      this.endX = e.clientX;
+      this.endY = e.clientY;
+      clearTimeout(this.timer);
+      this.timer = setTimeout(this.showCursor.bind(this), 1000);
+    }
   }
 
   mouseDown() {
@@ -65,19 +70,39 @@ class Cursor {
     this.isHovering = false;
   }
 
+  mouseLeaveDocument() {
+    clearTimeout(this.timer);
+    this.hasLeft = true;
+    this.hideCursor();
+  }
+  mouseEnterDocument() {
+    this.hasLeft = false;
+  }
+
   showCursor() {
     if (!this.isHovering) {
       this.isVisible = true;
-      if (this.canvas) this.canvas.classList.add('hide-default-cursor');
       this.cursorEl.classList.remove('hide-cursor');
+      gsap.to(this.cursorEl, {
+        duration: 0.55,
+        opacity: 1,
+        ease: 'ease',
+        onComplete: () => {
+          if (this.canvas) this.canvas.classList.add('hide-default-cursor');
+        },
+      });
     }
   }
   hideCursor() {
-    setTimeout(() => {
-      this.isVisible = false;
-      if (this.canvas) this.canvas.classList.remove('hide-default-cursor');
-      this.cursorEl.classList.add('hide-cursor');
-    }, 200);
+    this.isVisible = false;
+    gsap.to(this.cursorEl, {
+      duration: 0.35,
+      opacity: 0,
+      ease: 'ease',
+      onComplete: () => {
+        if (this.canvas) this.canvas.classList.remove('hide-default-cursor');
+      },
+    });
   }
 
   update() {
