@@ -3,29 +3,81 @@ import raf from './Raf';
 class Cursor {
   delay = 10;
   cursorEl: HTMLElement;
-  hoverArray: NodeListOf<Element> | null = null;
   _x = 0;
   _y = 0;
   endX = window.innerWidth / 2;
   endY = window.innerHeight / 2;
+  timer = 0;
+  canvas: HTMLCanvasElement | null = null;
+  hoverables: NodeListOf<Element> | null = null;
+  isHovering = false;
+  isVisible = false;
+  boundEventListeners: ((e: MouseEvent) => void)[] = [];
   constructor() {
     this.cursorEl = document.querySelector('.cursor') as HTMLElement;
-    window.addEventListener('mousemove', this.mouseMove.bind(this));
-    document.addEventListener('mouseleave', this.hideCursor.bind(this));
-    document.addEventListener('mouseenter', this.showCursor.bind(this));
+    this.canvas = document.querySelector('canvas');
+  }
+
+  init() {
+    this.boundEventListeners.push(
+      this.mouseMove.bind(this),
+      this.mouseDown.bind(this),
+      this.hideCursor.bind(this),
+    );
+    window.addEventListener('mousemove', this.boundEventListeners[0]);
+    document.addEventListener('mousedown', this.boundEventListeners[1]);
+    document.addEventListener('mouseleave', this.boundEventListeners[2]);
+    // document.addEventListener('mouseup', this.showCursor.bind(this));
     raf.subscribe('cursor', this.update.bind(this));
+    // if (this.canvas) this.canvas.classList.add('hide-default-cursor');
+    // this.cursorEl.classList.remove('hide-cursor');
+  }
+
+  stop() {
+    window.removeEventListener('mousemove', this.boundEventListeners[0]);
+    document.removeEventListener('mousedown', this.boundEventListeners[1]);
+    document.removeEventListener('mouseleave', this.boundEventListeners[2]);
+    // document.removeEventListener('mouseenter', this.showCursor.bind(this));
+    // document.removeEventListener('mouseup', this.showCursor.bind(this));
+    raf.unsubscribe('cursor');
+    clearTimeout(this.timer);
+    if (this.canvas) this.canvas.classList.remove('hide-default-cursor');
+    this.cursorEl.classList.add('hide-cursor');
   }
 
   mouseMove(e: MouseEvent) {
     this.endX = e.clientX;
     this.endY = e.clientY;
+
+    clearTimeout(this.timer);
+    this.timer = setTimeout(this.showCursor.bind(this), 1000);
+  }
+
+  mouseDown() {
+    if (this.isVisible) this.hideCursor();
+  }
+
+  mouseEnterHoverable() {
+    this.isHovering = true;
+    this.hideCursor();
+  }
+  mouseLeaveHoverable() {
+    this.isHovering = false;
   }
 
   showCursor() {
-    this.cursorEl.classList.remove('hide-cursor');
+    if (!this.isHovering) {
+      this.isVisible = true;
+      if (this.canvas) this.canvas.classList.add('hide-default-cursor');
+      this.cursorEl.classList.remove('hide-cursor');
+    }
   }
   hideCursor() {
-    this.cursorEl.classList.add('hide-cursor');
+    setTimeout(() => {
+      this.isVisible = false;
+      if (this.canvas) this.canvas.classList.remove('hide-default-cursor');
+      this.cursorEl.classList.add('hide-cursor');
+    }, 200);
   }
 
   update() {
@@ -37,10 +89,10 @@ class Cursor {
   }
 
   updateArray() {
-    this.hoverArray = document.querySelectorAll('.hoverable');
-    this.hoverArray.forEach((hoveredEl) => {
-      hoveredEl.addEventListener('mouseleave', this.showCursor.bind(this), false);
-      hoveredEl.addEventListener('mouseenter', this.hideCursor.bind(this), false);
+    this.hoverables = document.querySelectorAll('.hoverable');
+    this.hoverables.forEach((hoverable) => {
+      hoverable.addEventListener('mouseenter', this.mouseEnterHoverable.bind(this));
+      hoverable.addEventListener('mouseleave', this.mouseLeaveHoverable.bind(this));
     });
   }
 }

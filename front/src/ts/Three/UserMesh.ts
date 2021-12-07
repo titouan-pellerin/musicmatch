@@ -62,7 +62,6 @@ export class UserMesh extends Mesh {
     this.nameEl.classList.add('user-name', 'hidden', 'hoverable');
     document.querySelector('.labels')?.appendChild(this.nameEl);
     cursor.updateArray();
-
     this.positionMesh();
   }
 
@@ -99,8 +98,6 @@ export class UserMesh extends Mesh {
 
     this.position.set(newPosition.x, newPosition.y, newPosition.z);
     UserMesh.userMeshesGrid.set(this.position, true);
-    console.log(UserMesh.userMeshesGrid);
-
     gsap.to(UserMesh.userMeshesGroup.position, {
       duration: 0.75,
       ease: 'power3.out',
@@ -151,7 +148,6 @@ export class UserMesh extends Mesh {
     const meshToRemove = UserMesh.userMeshes.get(id) as UserMesh;
     document.getElementById(id)?.classList.add('hidden');
     UserMesh.userMeshesGrid.set(meshToRemove.position, false);
-    console.log(UserMesh.userMeshesGrid);
 
     gsap.to(meshToRemove.rotation, {
       duration: 0.75,

@@ -126,8 +126,6 @@ export class UsersSocket {
   }
 
   createUserMesh(user: SimpleUser) {
-    console.log(this.users.length);
-
     if (this.users.length > 1) {
       document.querySelector('.waiting-container')?.classList.add('hidden');
       document.querySelector('.start-btn-container')?.classList.remove('hidden');
@@ -165,6 +163,7 @@ export class UsersSocket {
   showUserMatch(e: Event) {
     e.preventDefault();
     if (this.usersAnalysis) {
+      cursor.stop();
       document
         .querySelector('.back-btn')
         ?.addEventListener('click', this.previous.bind(this));
@@ -220,7 +219,6 @@ export class UsersSocket {
         y: 0,
         z: 3,
         onUpdate() {
-          console.log(this);
           controls.target.copy(this._targets[0]);
         },
       });
@@ -319,7 +317,6 @@ export class UsersSocket {
           ease: 'back.in',
         });
       }
-      cursor.updateArray();
       document.querySelector('.canvas-container')?.classList.add('reduced');
       document.querySelector('.back-btn-container')?.classList.remove('hidden');
       document.querySelector('.hint-container')?.classList.add('hidden');
@@ -327,12 +324,18 @@ export class UsersSocket {
   }
   previous(e: Event | null = null) {
     if (e) e.preventDefault();
+    window.scroll({
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
+    });
     document.querySelector('.hint-container')?.classList.remove('hidden');
     document.querySelector('.canvas-container')?.classList.remove('reduced');
     document.querySelector('.back-btn-container')?.classList.add('hidden');
     document.querySelector('.results')?.classList.remove('show');
     document.body.classList.add('no-overflow-y');
     this.scene.controls.enabled = true;
+    cursor.init();
 
     gsap.to(UserMesh.userMeshesGroup.position, {
       duration: 0.75,

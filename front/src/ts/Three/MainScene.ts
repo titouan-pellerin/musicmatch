@@ -96,8 +96,6 @@ export class MainScene extends Scene {
 
   update() {
     this.controls.update();
-    // console.log(this.camera.position.clone());
-
     this.renderer.render(this, this.camera);
   }
 }

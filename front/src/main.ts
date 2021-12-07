@@ -39,11 +39,7 @@ document.addEventListener('DOMContentLoaded', init);
 
 function init() {
   canvas = document.querySelector('.webgl');
-  cursorEl = document.querySelector('.cursor');
-  hoverables = document.querySelectorAll('.hoverable');
-  if (cursorEl) {
-    cursor.updateArray();
-  }
+
   if (canvas) {
     mainScene = new MainScene(canvas);
   }
@@ -99,10 +95,17 @@ async function joinRoom(e: Event | null = null) {
   if (!room && roomInput && roomInput.value && roomInput.value.trim().length > 0)
     room = new Room(roomInput.value);
   if (room && mainScene && accessToken) {
-    console.log(room.roomUrl);
-
     document.querySelector('.room-selection')?.classList.add('hidden');
-
+    cursorEl = document.querySelector('.cursor');
+    hoverables = document.querySelectorAll('.hoverable');
+    if (cursorEl) {
+      if (
+        !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent,
+        )
+      )
+        cursor.init();
+    }
     usersSocket = new UsersSocket(BACK_URL, room.id, mainScene);
     const spotifyData = new SpotifyData(accessToken);
 
