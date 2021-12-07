@@ -33,7 +33,6 @@ let mainScene: MainScene | null = null;
 
 /** Cursor */
 let cursorEl: HTMLElement | null = null;
-let hoverables: NodeListOf<Element> | null = null;
 
 document.addEventListener('DOMContentLoaded', init);
 
@@ -97,7 +96,6 @@ async function joinRoom(e: Event | null = null) {
   if (room && mainScene && accessToken) {
     document.querySelector('.room-selection')?.classList.add('hidden');
     cursorEl = document.querySelector('.cursor');
-    hoverables = document.querySelectorAll('.hoverable');
     if (cursorEl) {
       if (
         !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
